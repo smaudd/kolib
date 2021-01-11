@@ -1,5 +1,4 @@
 export default {
-  mode: 'spa',
   /*
    ** Headers of the page
    */
@@ -41,4 +40,5 @@ export default {
      */
     extend(config, ctx) {},
   },
+  buildModules: ['@nuxtjs/tailwindcss']
 };
