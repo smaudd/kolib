@@ -16,28 +16,25 @@ export const state = () => ({
   clipIndex: null,
   loadEmitter: null,
   loadingMany: false,
+  autoTrimAll: true,
 })
 
 export const mutations = {
   setClip(state, { index, file }) {
-    if (state.clips[index]) {
-      state.clips.splice(index, 1, { file })
-      return
-    }
-    state.clips.splice(index, 0, { file })
+    state.clips.splice(index, 1, { file })
   },
   triggerLoadEmitter(state) {
+    const a = window.localStorage.getItem('clips')
     state.loadEmitter = Math.random()
   },
   setPreset(state, { index, preset }) {
-    if (state.presets[index]) {
-      state.presets.splice(index, 1, preset)
-      return
-    }
-    state.presets.splice(index, 0, preset)
+    state.presets.splice(index, 1, preset)
   },
   setClipIndex(state, index) {
     state.clipIndex = index
+  },
+  setAutoTrim(state, value) {
+    state.autoTrimAll = value
   },
   loadingMany(state, value) {
     state.loadingMany = value

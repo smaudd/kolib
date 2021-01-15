@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="bg-web">
     <nuxt />
     <ErrorModal />
   </div>
@@ -9,7 +9,7 @@
 import ErrorModal from "~/components/ErrorModal.vue";
 export default {
   components: {
-    ErrorModal
+    ErrorModal,
   },
 };
 </script>

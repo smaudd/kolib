@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="grid w-screen max-w-xs grid-cols-4 grid-rows-4 gap-1">
+    <div class="grid grid-cols-4 grid-rows-4 gap-1 rounded-md bg-davys">
       <Pad
         v-for="(pad, index) in pads"
         :key="pad"
@@ -9,6 +9,12 @@
         :clip="{ file: clips[index] ? clips[index].file : null }"
         :preset="presets[index]"
       />
+      <!-- <div
+        @click="toggleAutoTrim()"
+        :class="{ 'bg-black': $store.state.autoTrimAll }"
+      >
+        AUTO TRIM
+      </div> -->
     </div>
   </div>
 </template>
@@ -42,19 +48,22 @@ export default {
       }
       return pads;
     },
+    toggleAutoTrim() {
+      this.$store.commit("setAutoTrim", !this.$store.state.autoTrimAll);
+    },
     onPadDrop({ event, index }) {
-    //   if (event.dataTransfer.files.length > 1) {
-    //     this.$store.commit("errors/set", this.$t("ONE_FILE_ALLOWED"));
-    //     return;
-    //   }
-    //   const file = event.dataTransfer.files[0];
-    //   if (file) {
-    //     if (!this.allowedTypes.includes(file.type)) {
-    //       this.$store.commit("errors/set", this.$t("ONLY_AUDIO_ALLOWED"));
-    //       return;
-    //     }
-    //     this.$store.commit("setClip", { index, file });
-    //   }
+      //   if (event.dataTransfer.files.length > 1) {
+      //     this.$store.commit("errors/set", this.$t("ONE_FILE_ALLOWED"));
+      //     return;
+      //   }
+      //   const file = event.dataTransfer.files[0];
+      //   if (file) {
+      //     if (!this.allowedTypes.includes(file.type)) {
+      //       this.$store.commit("errors/set", this.$t("ONLY_AUDIO_ALLOWED"));
+      //       return;
+      //     }
+      //     this.$store.commit("setClip", { index, file });
+      //   }
     },
   },
   data() {

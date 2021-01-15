@@ -1,3 +1,5 @@
+import en from './assets/i18n/en.json'
+
 export default {
   /*
    ** Headers of the page
@@ -42,11 +44,7 @@ export default {
     vueI18n: {
       fallbackLocale: 'en',
       messages: {
-        en: {
-          OK: 'OK',
-          ONE_FILE_ALLOWED: 'Drop just one audio clip on the pad',
-          ONLY_AUDIO_ALLOWED: 'Only wav/mp3 files allowed'
-        }
+        en
       }
     }
   },

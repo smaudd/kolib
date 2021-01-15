@@ -1,15 +1,16 @@
 <template>
   <div
     @click="!clip.file ? openFile() : () => {}"
-    class="flex items-center justify-center h-24 p-4 overflow-hidden transition-all duration-200 border rounded-lg"
+    class="flex items-center justify-center p-4 overflow-hidden transition-all duration-200 rounded-lg h-14"
     :class="{
       'bg-secondary text-primary': over && !loading,
-      'bg-primary text-secondary': !clip.file && !loading,
-      'bg-orange-600 text-secondary': clip.file && !playing && !loading,
-      'bg-red-600 text-secondary': playing && !loading,
-      'bg-gray-600 text-secondary animation-blink': loading || loadingMany,
-      'pointer-events-none': loading || loadingMany,
+      'bg-quicksilver text-secondary': !clip.file && !loading,
+      'bg-melon': clip.file && !playing && !loading && clipIndex !== index,
+      'bg-ryb text-secondary': playing && !loading,
+      'bg-light text-secondary animation-blink': loading || loadingMany,
+      'bg-granny text-secondary': clipIndex === index && !playing,
 
+      'pointer-events-none': loading || loadingMany,
     }"
     v-on:dragover="onDragover"
     v-on:dragleave="onDragleave"
@@ -24,10 +25,6 @@
       v-show="false"
       v-on:change="onFile"
     />
-    <div v-if="clip.file" class="text-xs">
-      <p>{{ clip.file && clip.file.name }}</p>
-    </div>
-    <div v-else>{{ index + 1 }}</div>
   </div>
 </template>
 
@@ -47,20 +44,32 @@ export default {
       loadingMany: (state) => {
         return state.loadingMany;
       },
+      autoTrimAll: (state) => {
+        return state.autoTrimAll;
+      },
+      clipIndex: (state) => {
+        return state.clipIndex;
+      },
     }),
   },
   created() {
     if (process.client) {
       this.Tone = require("tone");
-      this.sampler = new this.Tone.Player().toDestination();
+      this.sampler = new this.Tone.Player();
       this.sampler.onstop = () => {
         this.playing = false;
       };
-      // this.reverb = new this.Tone.Reverb().toDestination();
-      // this.pitchShift = new this.Tone.PitchShift().toDestination();
+      this.reverb = new this.Tone.Reverb().toDestination();
+      this.pitchShift = new this.Tone.PitchShift().toDestination();
       // this.envelope = new this.Tone.AmplitudeEnvelope().toDestination();
-      // this.player.connect(this.pitchShift).connect(this.reverb);
-      setSampler(this.sampler);
+      this.sampler.connect(this.pitchShift).connect(this.reverb);
+      setSampler({
+        sampler: this.sampler,
+        fx: {
+          reverb: this.reverb,
+          pitchShift: this.pitchShift,
+        },
+      });
       if (process.browser) {
         // Remember workers just work in client?
         this.worker = this.$worker.createWorker(); // Instruction assigned in plugin
@@ -78,23 +87,23 @@ export default {
         wet: this.preset.reverb.wet,
         decay: this.preset.reverb.decay,
       });
-      this.envelope.attack = this.preset.envelope.attack;
-      this.envelope.decay = this.preset.envelope.decay;
-      this.envelope.sustain = this.preset.envelope.sustain;
-      this.envelope.release = this.preset.envelope.release;
+      // this.envelope.attack = this.preset.envelope.attack;
+      // this.envelope.decay = this.preset.envelope.decay;
+      // this.envelope.sustain = this.preset.envelope.sustain;
+      // this.envelope.release = this.preset.envelope.release;
     },
   },
   methods: {
     async workerResponseHandler(event) {
       const { index, objectURL, file, length } = event.data;
-      await samplers[index].load(objectURL);
+      await samplers[index].sampler.load(objectURL);
+      // this.download(file.name, objectURL);
       this.$store.commit("setClip", { index, file });
       this.$store.commit("triggerLoadEmitter");
       this.loading = false;
       URL.revokeObjectURL(objectURL);
-      console.log("loading maby commit", index, length);
+      this.$store.commit("setClipIndex", index);
       if (index === length - 1) {
-        console.log("commited");
         this.$store.commit("loadingMany", false);
       }
     },
@@ -106,16 +115,14 @@ export default {
     onDragleave() {
       this.over = false;
     },
-    async onDrop(event) {
-      this.loading = true;
-      event.preventDefault();
-      event.stopPropagation();
-      this.over = false;
-      const files = event.dataTransfer.files;
+    async upload(files) {
       if (files.length === 1) {
-        const trimmedFile = await trim({ file: files[0], type: "edges" });
+        let file = files[0];
+        if (this.autoTrimAll) {
+          file = await trim({ file: files[0], type: "edges" });
+        }
         await this.loadSampler({
-          file: trimmedFile,
+          file,
           index: this.index,
           length: files.length,
         });
@@ -123,34 +130,30 @@ export default {
       }
       let i = 0;
       this.$store.commit("loadingMany", true);
-      for await (const file of files) {
-        const trimmedFile = await trim({ file, type: "edges" });
+      for await (let file of files) {
+        if (this.autoTrimAll) {
+          file = await trim({ file, type: "edges" });
+        }
         await this.loadSampler({
-          file: trimmedFile,
+          file,
           index: i,
           length: files.length,
         });
         i++;
       }
     },
-    async onFile({ target }) {
-      const files = target.files;
-      if (files.length === 1) {
-        const trimmedFile = await trim({ file: files[0], type: "edges" });
-        await this.loadSampler({ file: trimmedFile, index: this.index });
-        return;
-      }
-      let i = 0;
-      this.$store.commit("loadingMany", true);
-      for await (const file of files) {
-        const trimmedFile = await trim({ file, type: "edges" });
-        await this.loadSampler({
-          file: trimmedFile,
-          index: i,
-          length: files.length,
-        });
-        i++;
-      }
+    async onDrop(event) {
+      this.loading = true;
+      event.preventDefault();
+      event.stopPropagation();
+      this.over = false;
+      const files = event.dataTransfer.files;
+      this.upload(files);
+    },
+    async onFile(event) {
+      this.loading = true;
+      const files = event.target.files;
+      this.upload(files);
     },
     async onMousedown() {
       if (this.clip.file && !this.loading) {
@@ -170,11 +173,12 @@ export default {
       this.$store.commit("setClipIndex", this.index);
     },
     download(fileName, objectURL) {
-      const url = objectURL;
       const a = document.createElement("a");
-      a.href = url;
+      document.body.appendChild(a);
       a.download = fileName;
+      a.href = objectURL;
       a.click();
+      // URL.revokeObjectURL(objectURL);
     },
     async loadSampler({ file, index, length }) {
       try {
@@ -187,7 +191,6 @@ export default {
     },
     openFile() {
       this.$refs.file.click();
-      this.loading = true;
     },
   },
   data() {

@@ -3,6 +3,10 @@
 @tailwind components;
 @tailwind utilities;
 
+body {
+  text-transform: lowercase;
+}
+
 .animation-blink {
   animation: blink 0.5s alternate infinite;
 }

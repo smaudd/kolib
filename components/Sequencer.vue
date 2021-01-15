@@ -1,5 +1,7 @@
 <template>
-  <div @click="toggleSequencer">PLAY</div>
+  <div @click="toggleSequencer" :class="{ 'pointer-events-none': playing }">
+    PLAY
+  </div>
 </template>
 
 <script>
@@ -11,8 +13,8 @@ import { trim } from "~/lib/ffmpeg";
 export default {
   created() {
     this.parts = samplers
-      .filter((sampler) => sampler.buffer.loaded)
-      .map((sampler) => ({
+      .filter(({ sampler }) => sampler.buffer.loaded)
+      .map(({ sampler }) => ({
         time: sampler.buffer.duration,
         note: "C4",
         velocity: 1,
@@ -28,19 +30,21 @@ export default {
   },
   watch: {
     "$store.state.loadEmitter": function () {
+      console.log(samplers);
       this.parts = samplers
-        .filter((sampler) => sampler.buffer.loaded)
-        .map((sampler, index, self) => ({
+        .filter((item) => item.sampler.buffer.loaded)
+        .map((item, index, self) => ({
           time:
             index === 0
               ? 0
               : self
                   .filter((_, i) => i < index)
                   .reduce(
-                    (acc, current) => (acc += current.buffer.duration + 0.2),
+                    (acc, current) =>
+                      (acc += current.sampler.buffer.duration + 0.2),
                     0
                   ),
-          duration: sampler.buffer.duration,
+          duration: item.sampler.buffer.duration,
           note: "C4",
           velocity: 1,
         }));
@@ -67,12 +71,10 @@ export default {
           this.download(chunks);
         }
       };
-      console.log("REgistered");
     },
     async download(chunks) {
       const blob = new Blob(chunks, { type: "audio/wav" });
       const buffer = await blob.arrayBuffer();
-      console.log(buffer);
       let file = new File([buffer], "mash.wav", {
         type: "audio/wav",
       });
@@ -86,12 +88,16 @@ export default {
       URL.revokeObjectURL(url);
     },
     async toggleSequencer() {
-      console.log(this.recorder);
+      console.log("toggle me");
+      this.playing = true;
       let index = 0;
       this.recorder.start();
       const part = new this.Tone.Part((time, value) => {
-        samplers[index].connect(this.dest);
-        samplers[index].start(time);
+        samplers[index].sampler
+          .connect(samplers[index].fx.reverb.connect(this.dest))
+          .connect(samplers[index].fx.pitchShift.connect(this.dest))
+          .connect(this.dest)
+          .start(time);
         index++;
       }, this.parts);
       part.start();
@@ -100,6 +106,7 @@ export default {
       setTimeout(() => {
         this.recorder.stop();
         this.recorder = null;
+        this.playing = false;
         this.registerRecorder();
       }, this.parts[this.parts.length - 1].time * 1000 + 1000);
     },
