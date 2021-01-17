@@ -5,7 +5,7 @@ export const state = () => ({
     const arr = []
     for (let i = 0; i < 16; i++) {
       arr.push({
-        pitch: { value: 0, wet: 1, windowSize: 0.05, delay: 0 },
+        pitch: { value: 0, wet: 0, windowSize: 0.05, delay: 0 },
         reverb: { wet: 1, decay: 0.001, },
         envelope: { attack: 0.1, decay: 0.2, sustain: 0.5, release: 0.8 }
       })
@@ -55,6 +55,5 @@ export const mutations = {
   },
   setDuration(state, { index, duration }) {
     state.durations.splice(index, 1, duration)
-    console.log(state.durations)
   } 
 }

@@ -103,7 +103,7 @@ export default {
     async download(chunks) {
       const blob = new Blob(chunks, { type: "audio/wav" });
       const buffer = await blob.arrayBuffer();
-      let file = new File([buffer], "mash.wav", {
+      let file = new File([buffer], `${this.name}.wav`, {
         type: "audio/wav",
       });
       file = await ffmpegTrim({ file, type: "start" });

@@ -92,6 +92,11 @@ export default {
         .toFixed(1);
     },
   },
+  watch: {
+    "$store.state.loading": function () {
+      this.togglePage("clip");
+    },
+  },
   methods: {
     togglePage(next) {
       this.currentPage = next;

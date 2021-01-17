@@ -146,6 +146,9 @@ export default {
       let i = 0;
       this.$store.commit("loading", true);
       for await (let file of files) {
+        if (i === this.clipIndex) {
+          this.fileCache = file;
+        }
         if (this.autoTrimAll.active || trim.active) {
           file = await ffmpegTrim({
             file,
