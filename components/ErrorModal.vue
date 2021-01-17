@@ -1,16 +1,6 @@
 <template>
   <transition name="fade">
-    <div
-      v-if="error"
-      class="fixed inset-0 flex items-center justify-center overlay"
-    >
-      <div class="w-1/3 p-4 bg-white rounded-lg">
-        <div class="mb-4 text-center">
-          {{ error }}
-        </div>
-        <Button :label="$t('OK')" v-on:click="flushError" />
-      </div>
-    </div>
+  
   </transition>
 </template>
 
@@ -21,9 +11,9 @@ export default {
     Button,
   },
   computed: {
-    error() {
-      return this.$store.state.errors.message;
-    },
+    // error() {
+    //   return this.$store.state.errors.message;
+    // },
   },
   methods: {
     flushError() {

@@ -9,12 +9,6 @@
         :clip="{ file: clips[index] ? clips[index].file : null }"
         :preset="presets[index]"
       />
-      <!-- <div
-        @click="toggleAutoTrim()"
-        :class="{ 'bg-black': $store.state.autoTrimAll }"
-      >
-        AUTO TRIM
-      </div> -->
     </div>
   </div>
 </template>

@@ -1,24 +1,22 @@
 <template>
-  <div class="">
-    <div class="flex items-center justify-between">
-      <Slider
-        :step="1"
-        :min="-24"
-        :max="24"
-        title="PITCH"
-        :value="presets[clipIndex].pitch.value"
-        v-on:input="onPitchChange"
-      />
-      <Slider
-        type="range"
-        :step="0.1"
-        :min="0"
-        :max="1"
-        title="WET"
-        :value="presets[clipIndex].pitch.wet"
-        v-on:input="onPitchWetChange"
-      />
-    </div>
+  <div class="flex flex-col items-center">
+    <Slider
+      :step="1"
+      :min="-24"
+      :max="24"
+      :title="$t('PITCH')"
+      :value="presets[clipIndex].pitch.value"
+      v-on:input="onPitchChange"
+    />
+    <Slider
+      type="range"
+      :step="0.1"
+      :min="0"
+      :max="1"
+      :title="$t('WET')"
+      :value="presets[clipIndex].pitch.wet"
+      v-on:input="onPitchWetChange"
+    />
   </div>
 </template>
 
@@ -43,7 +41,6 @@ export default {
         return state.presets;
       },
       clipIndex: (state) => {
-        console.log(state);
         return state.clipIndex;
       },
     }),

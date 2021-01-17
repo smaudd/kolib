@@ -2,5 +2,20 @@
   "OK": "OK",
   "ONE_FILE_ALLOWED": "drop just one audio clip on the pad",
   "ONLY_AUDIO_ALLOWED": "only wav/mp3 files allowed",
-  "LOAD_SAMPLE": "load your samples"
+  "LOAD_SAMPLE": "load your samples",
+  "PITCH_SHIFT": "pitch shift",
+  "REVERB": "reverb",
+  "WET": "wet",
+  "DECAY": "decay",
+  "PITCH": "pitch",
+  "TRIM_THRESHOLD": "trim threshold",
+  "THRESHOLD": "threshold",
+  "TRIM": "trim",
+  "UNDO": "undo",
+  "CANT_TRIM_FILE": "this file can't be trimmed any further",
+  "SAMPLE_SPACE": "sample space",
+  "PLAY": "play",
+  "PLAY_SAVE": "play & save",
+  "AUTO_TRIM": "auto trim",
+  "KIT_NAME": "kit name"
 }

@@ -1,17 +1,37 @@
 <template>
-  <div id="waveform"></div>
+  <div
+    ref="container"
+    class="flex-grow p-1 border rounded-md border-quicksilver text-quicksilver"
+    :class="{ 'animation-blink': $store.state.loading }"
+  >
+    <div id="waveform" ref="waveform" v-show="!error"></div>
+    <div v-if="error" class="flex flex-col flex-grow h-full text-sm">
+      <div class="flex-grow">{{ error }}</div>
+      <div><Snack :label="$t('OK')" v-on:click="flushError" /></div>
+    </div>
+  </div>
 </template>
 
 <script>
 import { mapState } from "vuex";
+import Snack from "~/components/Snack";
 
 export default {
+  components: {
+    Snack,
+  },
   computed: {
     ...mapState({
       clipIndex: (state) => {
         return state.clipIndex;
       },
+      clips: (state) => {
+        return state.clips;
+      },
     }),
+    error() {
+      return this.$store.state.errors.message;
+    },
   },
   watch: {
     clipIndex() {
@@ -19,30 +39,62 @@ export default {
         file: this.$store.state.clips[this.clipIndex].file,
       });
     },
+    clips() {
+      this.worker.postMessage({
+        file: this.$store.state.clips[this.clipIndex].file,
+      });
+    },
   },
-  created() {
+  mounted() {
     if (process.client) {
+      const parentEl = this.$refs.container.parentElement;
+      const previousSibling = this.$refs.container.previousElementSibling;
+      const { height: parentElHeight } = parentEl.getBoundingClientRect();
+      const {
+        height: previousSiblingElHeight,
+      } = previousSibling.getBoundingClientRect();
+
+      const height = parentElHeight - previousSiblingElHeight;
       const WaveSurfer = require("wavesurfer.js");
       this.wavesurfer = WaveSurfer.create({
-        container: "#waveform",
-        waveColor: "violet",
+        container: this.$refs.waveform,
+        waveColor: "#FFBFB7",
         progressColor: "purple",
         cursorColor: "transparent",
         hideScrollbar: true,
         interact: false,
+        height: height - 16 * 4 * 0.5,
       });
-      if (process.browser) {
-        // Remember workers just work in client?
-        this.worker = this.$worker.createWorker(); // Instruction assigned in plugin
-        this.worker.addEventListener("message", this.workerResponseHandler);
+      this.wavesurfer.on("ready", () => {
+        this.$emit("load", {
+          duration: this.wavesurfer.getDuration().toFixed(2),
+        });
+      });
+      this.worker = this.$worker.createWorker(); // Instruction assigned in plugin
+      this.worker.addEventListener("message", this.workerResponseHandler);
+      if (this.clipIndex !== null) {
+        this.worker.postMessage({
+          file: this.$store.state.clips[this.clipIndex].file,
+        });
       }
     }
+  },
+  destroyed() {
+    this.wavesurfer.destroy();
   },
   methods: {
     workerResponseHandler(event) {
       const { objectURL } = event.data;
       this.wavesurfer.load(objectURL);
     },
+    flushError() {
+      this.$store.commit("errors/clear");
+    },
+  },
+  data() {
+    return {
+      duration: "",
+    };
   },
 };
 </script>

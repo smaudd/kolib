@@ -1,15 +1,32 @@
 <template>
-  <div class="flex flex-col items-center" style="margin-top: 7px">
-    <div class="mb-2 font-mono text-sm text-quicksilver">{{ title }}</div>
+  <div
+    class="flex flex-col items-center w-full p-1 border rounded-md border-quicksilver"
+    style="margin-top: 7px"
+  >
+    <div
+      class="flex self-stretch justify-between flex-grow mb-2 font-mono text-sm text-quicksilver"
+    >
+      <div
+        class="flex justify-between"
+        :class="{ 'w-1/2': $slots.default, 'w-full': !$slots.default }"
+      >
+        <span>{{ title }}</span
+        ><span
+          >{{ value }}<span v-if="unit">{{ unit }}</span></span
+        >
+      </div>
+      <slot></slot>
+    </div>
     <input
+      class="mb-2"
       type="range"
       :step="step"
       :min="min"
       :max="max"
       :value="value"
+      :id="unit"
       @input="$emit('input', $event)"
     />
-    <div class="mt-2 text-sm text-quicksilver">{{ value }}</div>
   </div>
 </template>
 
@@ -21,6 +38,7 @@ export default {
     min: Number,
     max: Number,
     step: Number,
+    unit: String,
   },
 };
 </script>
@@ -46,7 +64,7 @@ input[type="range"]::-webkit-slider-thumb {
   width: 10px;
   height: 10px;
   background-color: #a5a5a5ff;
-  margin-top: -4px;
+  margin-top: -5px;
 }
 
 input[type="range"]::-webkit-slider-thumb:active,

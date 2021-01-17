@@ -1,16 +1,17 @@
 <template>
   <div
     @click="!clip.file ? openFile() : () => {}"
-    class="flex items-center justify-center p-4 overflow-hidden transition-all duration-200 rounded-lg h-14"
+    class="flex items-center justify-center p-4 overflow-hidden transition-all duration-200 rounded-lg cursor-pointer h-14"
     :class="{
-      'bg-secondary text-primary': over && !loading,
-      'bg-quicksilver text-secondary': !clip.file && !loading,
-      'bg-melon': clip.file && !playing && !loading && clipIndex !== index,
-      'bg-ryb text-secondary': playing && !loading,
-      'bg-light text-secondary animation-blink': loading || loadingMany,
+      'bg-secondary text-primary': over && !$store.state.loading,
+      'bg-quicksilver text-secondary hover:bg-light':
+        !clip.file && !$store.state.loading,
+      'bg-melon':
+        clip.file && !playing && !$store.state.loading && clipIndex !== index,
+      'bg-ryb text-secondary': playing && !$store.state.loading,
+      'bg-light text-secondary animation-blink': $store.state.loading,
       'bg-granny text-secondary': clipIndex === index && !playing,
-
-      'pointer-events-none': loading || loadingMany,
+      'pointer-events-none': $store.state.loading,
     }"
     v-on:dragover="onDragover"
     v-on:dragleave="onDragleave"
@@ -31,7 +32,7 @@
 <script>
 import { mapState } from "vuex";
 import { setSampler, samplers } from "~/store/samplers.js";
-import { trim } from "~/lib/ffmpeg";
+import { ffmpegTrim } from "~/lib/ffmpeg";
 export default {
   props: {
     index: Number,
@@ -49,6 +50,12 @@ export default {
       },
       clipIndex: (state) => {
         return state.clipIndex;
+      },
+      trim: (state) => {
+        return state.trim;
+      },
+      undo: (state) => {
+        return state.undo;
       },
     }),
   },
@@ -92,19 +99,39 @@ export default {
       // this.envelope.sustain = this.preset.envelope.sustain;
       // this.envelope.release = this.preset.envelope.release;
     },
+    trim: function ({ index, threshold }) {
+      if (index === this.index) {
+        this.fileCache = this.clip.file;
+        this.upload([this.clip.file], {
+          threshold,
+          active: true,
+        });
+      }
+    },
+    undo: function ({ index }) {
+      if (index === this.index) {
+        this.$store.commit("loading", true);
+        this.upload([this.fileCache], { active: false });
+      }
+    },
   },
   methods: {
     async workerResponseHandler(event) {
-      const { index, objectURL, file, length } = event.data;
-      await samplers[index].sampler.load(objectURL);
+      const { index, objectURL, file, length, trimmed } = event.data;
+      try {
+        await samplers[index].sampler.load(objectURL);
+      } catch (err) {
+        this.$store.commit("errors/set", this.$t("CANT_TRIM_FILE"));
+        this.$store.commit("loading", false);
+        return;
+      }
       // this.download(file.name, objectURL);
-      this.$store.commit("setClip", { index, file });
+      this.$store.commit("setClip", { index, file, trimmed });
       this.$store.commit("triggerLoadEmitter");
-      this.loading = false;
       URL.revokeObjectURL(objectURL);
       this.$store.commit("setClipIndex", index);
-      if (index === length - 1) {
-        this.$store.commit("loadingMany", false);
+      if (index === length - 1 || length === 1) {
+        this.$store.commit("loading", false);
       }
     },
     onDragover(e) {
@@ -115,48 +142,47 @@ export default {
     onDragleave() {
       this.over = false;
     },
-    async upload(files) {
-      if (files.length === 1) {
-        let file = files[0];
-        if (this.autoTrimAll) {
-          file = await trim({ file: files[0], type: "edges" });
-        }
-        await this.loadSampler({
-          file,
-          index: this.index,
-          length: files.length,
-        });
-        return;
-      }
+    async upload(files, trim) {
       let i = 0;
-      this.$store.commit("loadingMany", true);
+      this.$store.commit("loading", true);
       for await (let file of files) {
-        if (this.autoTrimAll) {
-          file = await trim({ file, type: "edges" });
+        if (this.autoTrimAll.active || trim.active) {
+          file = await ffmpegTrim({
+            file,
+            type: "edges",
+            threshold: this.autoTrimAll.active
+              ? this.autoTrimAll.threshold
+              : trim.threshold,
+          });
         }
         await this.loadSampler({
           file,
-          index: i,
+          index: files.length === 1 ? this.index : i, // If loads just one, use current index instead of iterator
           length: files.length,
+          trimmed: this.autoTrimAll.active || trim.active,
         });
         i++;
       }
     },
     async onDrop(event) {
-      this.loading = true;
+      this.$store.commit("loading", true);
       event.preventDefault();
       event.stopPropagation();
       this.over = false;
       const files = event.dataTransfer.files;
-      this.upload(files);
+      this.upload(files, { active: false });
     },
     async onFile(event) {
-      this.loading = true;
+      this.$store.commit("loading", true);
       const files = event.target.files;
-      this.upload(files);
+      if (files.length === 0) {
+        this.$store.commit("loading", false);
+        return;
+      }
+      this.upload(files, { active: false });
     },
     async onMousedown() {
-      if (this.clip.file && !this.loading) {
+      if (this.clip.file && !this.$store.state.loading) {
         await this.play();
       }
       this.longPressTimeout = setTimeout(() => {
@@ -178,16 +204,9 @@ export default {
       a.download = fileName;
       a.href = objectURL;
       a.click();
-      // URL.revokeObjectURL(objectURL);
     },
-    async loadSampler({ file, index, length }) {
-      try {
-        this.loading = true;
-        this.worker.postMessage({ file, index, length });
-      } catch (err) {
-        this.loading = false;
-        this.$store.commit("errors/set", err.toString());
-      }
+    async loadSampler({ file, index, length, trimmed }) {
+      this.worker.postMessage({ file, index, length, trimmed });
     },
     openFile() {
       this.$refs.file.click();
@@ -198,7 +217,6 @@ export default {
       over: false,
       playing: false,
       longPressTimeout: null,
-      loading: false,
       allowedTypes: ["audio/wav", "audio/mp3"],
     };
   },

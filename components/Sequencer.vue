@@ -1,6 +1,25 @@
 <template>
-  <div @click="toggleSequencer" :class="{ 'pointer-events-none': playing }">
-    PLAY
+  <div class="flex">
+    <div
+      @click="toggleSequencer({ record: false })"
+      class="flex-1 w-1/2 p-1 text-sm transition-colors duration-150 border rounded-md cursor-pointer border-quicksilver text-quicksilver hover:bg-granny hover:text-davys"
+      style="margin-right: 0.125rem"
+      :class="{
+        'pointer-events-none bg-ryb animation-blink text-light': playing,
+      }"
+    >
+      {{ $t("PLAY") }}
+    </div>
+    <div
+      @click="toggleSequencer({ record: true })"
+      class="flex-1 w-1/2 p-1 ml-1 text-sm transition-colors duration-150 border rounded-md border-quicksilver text-quicksilver hover:bg-granny hover:text-davys"
+      style="margin-left: 0.125rem"
+      :class="{
+        'pointer-events-none bg-ryb animation-blink text-light': playing,
+      }"
+    >
+      {{ $t("PLAY_SAVE") }}
+    </div>
   </div>
 </template>
 
@@ -8,9 +27,13 @@
 import { Recorder } from "tone";
 import { mapState } from "vuex";
 import { samplers } from "~/store/samplers";
-import { trim } from "~/lib/ffmpeg";
+import { ffmpegTrim } from "~/lib/ffmpeg";
 
 export default {
+  props: {
+    space: Number,
+    name: String,
+  },
   created() {
     this.parts = samplers
       .filter(({ sampler }) => sampler.buffer.loaded)
@@ -30,7 +53,14 @@ export default {
   },
   watch: {
     "$store.state.loadEmitter": function () {
-      console.log(samplers);
+      this.setParts();
+    },
+    space: function () {
+      this.setParts();
+    },
+  },
+  methods: {
+    setParts() {
       this.parts = samplers
         .filter((item) => item.sampler.buffer.loaded)
         .map((item, index, self) => ({
@@ -41,7 +71,7 @@ export default {
                   .filter((_, i) => i < index)
                   .reduce(
                     (acc, current) =>
-                      (acc += current.sampler.buffer.duration + 0.2),
+                      (acc += current.sampler.buffer.duration + this.space),
                     0
                   ),
           duration: item.sampler.buffer.duration,
@@ -49,8 +79,6 @@ export default {
           velocity: 1,
         }));
     },
-  },
-  methods: {
     async registerEncoder() {
       const { MediaRecorder, register } = require("extendable-media-recorder");
       const { connect } = require("extendable-media-recorder-wav-encoder");
@@ -68,30 +96,33 @@ export default {
       this.recorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
           chunks.push(event.data);
+          console.log("AKI");
           this.download(chunks);
         }
       };
     },
     async download(chunks) {
+      console.log("DOWNLODADADA");
       const blob = new Blob(chunks, { type: "audio/wav" });
       const buffer = await blob.arrayBuffer();
       let file = new File([buffer], "mash.wav", {
         type: "audio/wav",
       });
-      file = await trim({ file, type: "start" });
+      file = await ffmpegTrim({ file, type: "start" });
       const url = URL.createObjectURL(file);
       const a = document.createElement("a");
       document.body.appendChild(a);
       a.href = url;
-      a.download = "mash.wav";
+      a.download = `${this.name}.wav`;
       a.click();
       URL.revokeObjectURL(url);
     },
-    async toggleSequencer() {
-      console.log("toggle me");
+    async toggleSequencer({ record }) {
       this.playing = true;
       let index = 0;
-      this.recorder.start();
+      if (record) {
+        this.recorder.start();
+      }
       const part = new this.Tone.Part((time, value) => {
         samplers[index].sampler
           .connect(samplers[index].fx.reverb.connect(this.dest))

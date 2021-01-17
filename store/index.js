@@ -15,17 +15,28 @@ export const state = () => ({
   players: [],
   clipIndex: null,
   loadEmitter: null,
-  loadingMany: false,
-  autoTrimAll: true,
+  loading: false,
+  autoTrimAll: {
+    threshold: 10,
+    active: false,
+  },
+  trim: false,
+  undo: null,
+  durations: [],
 })
 
 export const mutations = {
-  setClip(state, { index, file }) {
-    state.clips.splice(index, 1, { file })
+  setClip(state, { index, file, trimmed }) {
+    state.clips.splice(index, 1, { file, trimmed })
   },
   triggerLoadEmitter(state) {
-    const a = window.localStorage.getItem('clips')
     state.loadEmitter = Math.random()
+  },
+  triggerTrim(state, payload) {
+    state.trim = payload
+  },
+  triggerUndo(state, payload) {
+    state.undo = payload
   },
   setPreset(state, { index, preset }) {
     state.presets.splice(index, 1, preset)
@@ -33,13 +44,17 @@ export const mutations = {
   setClipIndex(state, index) {
     state.clipIndex = index
   },
-  setAutoTrim(state, value) {
-    state.autoTrimAll = value
+  setAutoTrim(state, payload) {
+    state.autoTrimAll = payload
   },
-  loadingMany(state, value) {
-    state.loadingMany = value
+  loading(state, value) {
+    state.loading = value
   },
   clear(state, { index }) {
     state.clips[index] = empty
   },
+  setDuration(state, { index, duration }) {
+    state.durations.splice(index, 1, duration)
+    console.log(state.durations)
+  } 
 }
