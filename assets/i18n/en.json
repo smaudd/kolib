@@ -12,7 +12,7 @@
   "THRESHOLD": "threshold",
   "TRIM": "trim",
   "UNDO": "undo",
-  "CANT_TRIM_FILE": "this file can't be trimmed any further",
+  "CANT_TRIM_FILE": "this file can't be trimmed any further.\ntry with a lower threshold value first",
   "SAMPLE_SPACE": "sample space",
   "PLAY": "play",
   "PLAY_SAVE": "play & save",

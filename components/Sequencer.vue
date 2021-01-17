@@ -125,9 +125,12 @@ export default {
         this.recorder.start();
       }
       const part = new this.Tone.Part((time, value) => {
+        if (!samplers[index].sampler.loaded) {
+          return;
+        }
         samplers[index].sampler
           .connect(samplers[index].fx.reverb.connect(this.dest))
-          .connect(samplers[index].fx.pitchShift.connect(this.dest))
+          // .connect(samplers[index].fx.pitchShift.connect(this.dest))
           .connect(this.dest)
           .start(time);
         index++;
