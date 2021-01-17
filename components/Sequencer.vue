@@ -12,7 +12,7 @@
     </div>
     <div
       @click="toggleSequencer({ record: true })"
-      class="flex-1 w-1/2 p-1 ml-1 text-sm transition-colors duration-150 border rounded-md border-quicksilver text-quicksilver hover:bg-granny hover:text-davys"
+      class="flex-1 w-1/2 p-1 ml-1 text-sm transition-colors duration-150 border rounded-md cursor-pointer border-quicksilver text-quicksilver hover:bg-granny hover:text-davys"
       style="margin-left: 0.125rem"
       :class="{
         'pointer-events-none bg-ryb animation-blink text-light': playing,
@@ -96,13 +96,11 @@ export default {
       this.recorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
           chunks.push(event.data);
-          console.log("AKI");
           this.download(chunks);
         }
       };
     },
     async download(chunks) {
-      console.log("DOWNLODADADA");
       const blob = new Blob(chunks, { type: "audio/wav" });
       const buffer = await blob.arrayBuffer();
       let file = new File([buffer], "mash.wav", {
@@ -118,6 +116,9 @@ export default {
       URL.revokeObjectURL(url);
     },
     async toggleSequencer({ record }) {
+      if (this.$store.state.clips.every((clip) => clip === undefined)) {
+        return;
+      }
       this.playing = true;
       let index = 0;
       if (record) {
