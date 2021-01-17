@@ -1,6 +1,6 @@
 <template>
   <div class="flex items-center justify-center h-screen select-none">
-    <div class="w-2/4 max-w-xs p-2 rounded-lg max-h-566px bg-davys text-davys">
+    <div class="w-full p-2 rounded-lg max-h-566px md:max-w-375px bg-davys text-davys">
       <Editor />
       <Grid />
       <!-- <Sequencer /> -->

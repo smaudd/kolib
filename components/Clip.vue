@@ -26,7 +26,7 @@
               v-if="clipIndex.trimmed"
             />
             <div class="w-1" />
-            <Snack :label="$t('TRIM')" :secondary="true" v-on:click="onTrim" />
+            <Snack :label="$t('TRIM')" v-on:click="onTrim" />
           </div>
         </Slider>
       </div>

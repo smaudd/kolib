@@ -14,7 +14,11 @@ module.exports = {
         granny: '#88D18A',
       },
       maxWidth: {
-        'xs': '375px',
+        '375px': '375px',
+      },
+      minWidth: {
+        '375px': '375px',
+        '275px': '275px',
       },
       minHeight: {
         'screen': '100vh',

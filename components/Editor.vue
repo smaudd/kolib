@@ -104,7 +104,7 @@ export default {
   },
   data() {
     return {
-      currentPage: "master",
+      currentPage: "clip",
       page: {
         clip: Clip,
         fx: FX,
