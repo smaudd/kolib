@@ -55,10 +55,10 @@ export default {
           component: Reverb,
           label: this.$t("REVERB"),
         },
-        pitchShift: {
-          component: PitchShift,
-          label: this.$t("PITCH_SHIFT"),
-        },
+        // pitchShift: {
+        //   component: PitchShift,
+        //   label: this.$t("PITCH_SHIFT"),
+        // },
       },
     };
   },
