@@ -36,6 +36,23 @@ export default {
    */
   modules: [
     'nuxt-i18n',
+    ['@nuxtjs/firebase',
+    {
+      config: {
+        apiKey: "AIzaSyBzwl4SyuE1Lg30YtgEknZRDw7R9tRxF_U",
+        authDomain: "kolib-1.firebaseapp.com",
+        projectId: "kolib-1",
+        storageBucket: "kolib-1.appspot.com",
+        messagingSenderId: "816854528141",
+        appId: "1:816854528141:web:68ccd613b6c82481fab2c4",
+        measurementId: "G-MLCH3V5R8R"
+      },
+      services: {
+        auth: true, // Just as example. Can be any other service.
+        firestore: true,
+        storage: true,
+      }
+    }]
   ],
   
   i18n: {

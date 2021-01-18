@@ -1,8 +1,6 @@
 <template>
   <div class="flex items-center justify-center h-screen select-none">
-    <Generator />
-
-    
+    soy library!
   </div>
 </template>
 
@@ -11,7 +9,7 @@ import Generator from "~/components/Generator.vue";
 
 export default {
   components: {
-    Generator
+    Generator,
   },
   created() {
     if (process.client) {

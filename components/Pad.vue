@@ -3,15 +3,18 @@
     @click="!clip.file ? openFile() : () => {}"
     class="flex items-center justify-center p-4 overflow-hidden transition-all duration-200 rounded-lg cursor-pointer h-14"
     :class="{
-      'bg-secondary text-primary': over && !$store.state.loading,
+      'bg-secondary text-primary': over && !$store.state.generator.loading,
       'bg-quicksilver text-secondary hover:bg-light':
-        !clip.file && !$store.state.loading,
+        !clip.file && !$store.state.generator.loading,
       'bg-melon':
-        clip.file && !playing && !$store.state.loading && clipIndex !== index,
-      'bg-ryb text-secondary': playing && !$store.state.loading,
-      'bg-light text-secondary animation-blink': $store.state.loading,
+        clip.file &&
+        !playing &&
+        !$store.state.generator.loading &&
+        clipIndex !== index,
+      'bg-ryb text-secondary': playing && !$store.state.generator.loading,
+      'bg-light text-secondary animation-blink': $store.state.generator.loading,
       'bg-granny text-secondary': clipIndex === index && !playing,
-      'pointer-events-none': $store.state.loading,
+      'pointer-events-none': $store.state.generator.loading,
     }"
     v-on:dragover="onDragover"
     v-on:dragleave="onDragleave"
@@ -42,34 +45,42 @@ export default {
   },
   computed: {
     ...mapState({
-      loadingMany: (state) => {
-        return state.loadingMany;
-      },
       autoTrimAll: (state) => {
-        return state.autoTrimAll;
+        return state.generator.autoTrimAll;
       },
       clipIndex: (state) => {
-        return state.clipIndex;
+        return state.generator.clipIndex;
       },
       trim: (state) => {
-        return state.trim;
+        return state.generator.trim;
       },
       undo: (state) => {
-        return state.undo;
+        return state.generator.undo;
       },
     }),
   },
   created() {
-    if (process.client) {
+    if (process.browser) {
+      // Remember workers just work in client?
+      this.worker = this.$worker.createWorker(); // Instruction assigned in plugin
+      this.worker.addEventListener("message", this.workerResponseHandler);
+    }
+    if (samplers[this.clipIndex]) {
       this.Tone = require("tone");
-      this.sampler = new this.Tone.Player();
+      this.sampler = samplers[this.index].sampler;
+      this.initFX();
       this.sampler.onstop = () => {
         this.playing = false;
       };
-      this.reverb = new this.Tone.Reverb().toDestination();
-      this.pitchShift = new this.Tone.PitchShift().toDestination();
-      // this.envelope = new this.Tone.AmplitudeEnvelope().toDestination();
-      this.sampler.connect(this.pitchShift).connect(this.reverb);
+      return;
+    }
+    if (process.client) {
+      this.Tone = require("tone");
+      this.sampler = new this.Tone.Player();
+      this.initFX();
+      this.sampler.onstop = () => {
+        this.playing = false;
+      };
       setSampler({
         sampler: this.sampler,
         fx: {
@@ -77,11 +88,6 @@ export default {
           pitchShift: this.pitchShift,
         },
       });
-      if (process.browser) {
-        // Remember workers just work in client?
-        this.worker = this.$worker.createWorker(); // Instruction assigned in plugin
-        this.worker.addEventListener("message", this.workerResponseHandler);
-      }
     }
   },
   watch: {
@@ -110,28 +116,34 @@ export default {
     },
     undo: function ({ index }) {
       if (index === this.index) {
-        this.$store.commit("loading", true);
+        this.$store.commit("generator/loading", true);
         this.upload([this.fileCache], { active: false });
       }
     },
   },
   methods: {
+    initFX() {
+      this.reverb = new this.Tone.Reverb().toDestination();
+      this.pitchShift = new this.Tone.PitchShift().toDestination();
+      // this.envelope = new this.Tone.AmplitudeEnvelope().toDestination();
+      this.sampler.connect(this.pitchShift).connect(this.reverb);
+    },
     async workerResponseHandler(event) {
       const { index, objectURL, file, length, trimmed } = event.data;
       try {
         await samplers[index].sampler.load(objectURL);
       } catch (err) {
         this.$store.commit("errors/set", this.$t("CANT_TRIM_FILE"));
-        this.$store.commit("loading", false);
+        this.$store.commit("generator/loading", false);
         return;
       }
       // this.download(file.name, objectURL);
-      this.$store.commit("setClip", { index, file, trimmed });
-      this.$store.commit("triggerLoadEmitter");
+      this.$store.commit("generator/setClip", { index, file, trimmed });
+      this.$store.commit("generator/triggerLoadEmitter");
       URL.revokeObjectURL(objectURL);
-      this.$store.commit("setClipIndex", index);
+      this.$store.commit("generator/setClipIndex", index);
       if (index === length - 1 || length === 1) {
-        this.$store.commit("loading", false);
+        this.$store.commit("generator/loading", false);
       }
     },
     onDragover(e) {
@@ -144,7 +156,10 @@ export default {
     },
     async upload(files, trim) {
       let i = 0;
-      this.$store.commit("loading", true);
+      this.$store.commit("generator/loading", true);
+      if (files.length > 1) {
+        this.$store.commit("generator/clearClips");
+      }
       for await (let file of files) {
         if (i === this.clipIndex) {
           this.fileCache = file;
@@ -168,7 +183,7 @@ export default {
       }
     },
     async onDrop(event) {
-      this.$store.commit("loading", true);
+      this.$store.commit("generator/loading", true);
       event.preventDefault();
       event.stopPropagation();
       this.over = false;
@@ -176,16 +191,16 @@ export default {
       this.upload(files, { active: false });
     },
     async onFile(event) {
-      this.$store.commit("loading", true);
+      this.$store.commit("generator/loading", true);
       const files = event.target.files;
       if (files.length === 0) {
-        this.$store.commit("loading", false);
+        this.$store.commit("generator/loading", false);
         return;
       }
       this.upload(files, { active: false });
     },
     async onMousedown() {
-      if (this.clip.file && !this.$store.state.loading) {
+      if (this.clip.file && !this.$store.state.generator.loading) {
         await this.play();
       }
       this.longPressTimeout = setTimeout(() => {
@@ -199,7 +214,7 @@ export default {
       this.playing = true;
       await this.Tone.start();
       this.sampler.start();
-      this.$store.commit("setClipIndex", this.index);
+      this.$store.commit("generator/setClipIndex", this.index);
     },
     download(fileName, objectURL) {
       const a = document.createElement("a");
@@ -209,6 +224,7 @@ export default {
       a.click();
     },
     async loadSampler({ file, index, length, trimmed }) {
+      // this.$store.commit("generator/setClip", null);
       this.worker.postMessage({ file, index, length, trimmed });
     },
     openFile() {

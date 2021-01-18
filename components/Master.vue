@@ -70,7 +70,7 @@ export default {
       this.setAutoTrim();
     },
     setAutoTrim() {
-      this.$store.commit("setAutoTrim", {
+      this.$store.commit("generator/setAutoTrim", {
         threshold: this.trimThreshold,
         active: this.autoTrim,
       });

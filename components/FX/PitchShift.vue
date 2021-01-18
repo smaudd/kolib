@@ -38,16 +38,16 @@ export default {
   computed: {
     ...mapState({
       presets: (state) => {
-        return state.presets;
+        return state.generator.presets;
       },
       clipIndex: (state) => {
-        return state.clipIndex;
+        return state.generator.clipIndex;
       },
     }),
   },
   methods: {
     changeValue(param, value) {
-      this.$store.commit("setPreset", {
+      this.$store.commit("generator/setPreset", {
         index: this.clipIndex,
         preset: {
           ...this.presets[this.clipIndex],

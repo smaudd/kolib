@@ -1,7 +1,5 @@
 <template>
-  <transition name="fade">
-  
-  </transition>
+  <transition name="fade"> </transition>
 </template>
 
 <script>

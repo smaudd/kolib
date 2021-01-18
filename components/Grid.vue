@@ -5,7 +5,6 @@
         v-for="(pad, index) in pads"
         :key="pad"
         :index="pad"
-        v-on:drop="onPadDrop"
         :clip="{ file: clips[index] ? clips[index].file : null }"
         :preset="presets[index]"
       />
@@ -23,13 +22,13 @@ export default {
   computed: {
     ...mapState({
       clips: (state) => {
-        return state.clips;
+        return state.generator.clips;
       },
       presets: (state) => {
-        return state.presets;
+        return state.generator.presets;
       },
       players: (state) => {
-        return state.players;
+        return state.generator.players;
       },
     }),
   },
@@ -43,21 +42,10 @@ export default {
       return pads;
     },
     toggleAutoTrim() {
-      this.$store.commit("setAutoTrim", !this.$store.state.autoTrimAll);
-    },
-    onPadDrop({ event, index }) {
-      //   if (event.dataTransfer.files.length > 1) {
-      //     this.$store.commit("errors/set", this.$t("ONE_FILE_ALLOWED"));
-      //     return;
-      //   }
-      //   const file = event.dataTransfer.files[0];
-      //   if (file) {
-      //     if (!this.allowedTypes.includes(file.type)) {
-      //       this.$store.commit("errors/set", this.$t("ONLY_AUDIO_ALLOWED"));
-      //       return;
-      //     }
-      //     this.$store.commit("setClip", { index, file });
-      //   }
+      this.$store.commit(
+        "generator/setAutoTrim",
+        !this.$store.state.generator.autoTrimAll
+      );
     },
   },
   data() {

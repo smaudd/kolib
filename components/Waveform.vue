@@ -2,7 +2,7 @@
   <div
     ref="container"
     class="flex-grow p-1 border rounded-md border-quicksilver text-quicksilver"
-    :class="{ 'animation-blink': $store.state.loading }"
+    :class="{ 'animation-blink': $store.state.generator.loading }"
   >
     <div id="waveform" ref="waveform" v-show="!error"></div>
     <div v-if="error" class="flex flex-col flex-grow h-full text-sm">
@@ -23,10 +23,10 @@ export default {
   computed: {
     ...mapState({
       clipIndex: (state) => {
-        return state.clipIndex;
+        return state.generator.clipIndex;
       },
       clips: (state) => {
-        return state.clips;
+        return state.generator.clips;
       },
     }),
     error() {
@@ -36,12 +36,15 @@ export default {
   watch: {
     clipIndex() {
       this.worker.postMessage({
-        file: this.$store.state.clips[this.clipIndex].file,
+        file: this.$store.state.generator.clips[this.clipIndex].file,
       });
     },
     clips() {
+      const currentClip = this.$store.state.generator.clips[
+        this.$store.state.generator.clipIndex
+      ];
       this.worker.postMessage({
-        file: this.$store.state.clips[this.clipIndex].file,
+        file: currentClip ? currentClip.file : "",
       });
     },
   },
@@ -74,13 +77,13 @@ export default {
       this.worker.addEventListener("message", this.workerResponseHandler);
       if (this.clipIndex !== null) {
         this.worker.postMessage({
-          file: this.$store.state.clips[this.clipIndex].file,
+          file: this.$store.state.generator.clips[this.clipIndex].file,
         });
       }
     }
   },
   destroyed() {
-    this.wavesurfer.destroy();
+    // this.wavesurfer.destroy();
   },
   methods: {
     workerResponseHandler(event) {

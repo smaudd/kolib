@@ -68,32 +68,33 @@ export default {
   computed: {
     ...mapState({
       clipIndex: (state) => {
-        if (state.clipIndex !== null) {
-          const name = state.clips[state.clipIndex].file.name;
+        if (state.generator.clipIndex !== null) {
+          const currentClip = state.generator.clips[state.generator.clipIndex];
+          const name = currentClip ? currentClip.file.name : "";
           return {
             name: name.substring(0, 50).toLowerCase() + "...",
-            index: state.clipIndex,
-            label: `clip ${state.clipIndex + 1}`,
+            index: state.generator.clipIndex,
+            label: `clip ${state.generator.clipIndex + 1}`,
           };
         }
         return null;
       },
       clips: (state) => {
-        return state.clips;
+        return state.generator.clips;
       },
     }),
     error() {
       this.togglePage("clip");
-      return this.$store.state.errors.message;
+      return this.$store.state.generator.errors.message;
     },
     totalDuration() {
-      return this.$store.state.durations
+      return this.$store.state.generator.durations
         .reduce((acc, current) => (acc += +current.duration), 0)
         .toFixed(1);
     },
   },
   watch: {
-    "$store.state.loading": function () {
+    "$store.state.generator.loading": function () {
       this.togglePage("clip");
     },
   },

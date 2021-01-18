@@ -74,7 +74,7 @@ export default {
   methods: {
     onAttackChange({ target }) {
       const { value } = target;
-      this.$store.commit("setPreset", {
+      this.$store.commit("generator/setPreset", {
         index: this.clipIndex,
         preset: {
           ...this.presets[this.clipIndex],
@@ -87,7 +87,7 @@ export default {
     },
     onDecayChange({ target }) {
       const { value } = target;
-      this.$store.commit("setPreset", {
+      this.$store.commit("generator/setPreset", {
         index: this.clipIndex,
         preset: {
           ...this.presets[this.clipIndex],
@@ -100,7 +100,7 @@ export default {
     },
     onSustainChange({ target }) {
       const { value } = target;
-      this.$store.commit("setPreset", {
+      this.$store.commit("generator/setPreset", {
         index: this.clipIndex,
         preset: {
           ...this.presets[this.clipIndex],
@@ -113,7 +113,7 @@ export default {
     },
     onReleaseChange({ target }) {
       const { value } = target;
-      this.$store.commit("setPreset", {
+      this.$store.commit("generator/setPreset", {
         index: this.clipIndex,
         preset: {
           ...this.presets[this.clipIndex],

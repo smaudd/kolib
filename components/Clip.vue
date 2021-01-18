@@ -50,40 +50,41 @@ export default {
   computed: {
     ...mapState({
       clipIndex: (state) => {
-        if (state.clipIndex !== null) {
-          const name = state.clips[state.clipIndex].file.name;
+        if (state.generator.clipIndex !== null) {
+          const currentClip = state.generator.clips[state.generator.clipIndex];
+          const name = currentClip ? currentClip.file.name : "";
           return {
             name: name.substring(0, 50).toLowerCase() + "...",
-            index: state.clipIndex,
-            trimmed: state.clips[state.clipIndex].trimmed,
+            index: state.generator.clipIndex,
+            trimmed: currentClip ? currentClip.trimmed : false,
           };
         }
         return null;
       },
       clips: (state) => {
-        return state.clips;
+        return state.generator.clips;
       },
     }),
     error() {
-      return this.$store.state.errors.message;
+      return this.$store.state.generator.errors.message;
     },
   },
   methods: {
     onTrim() {
-      this.$store.commit("triggerTrim", {
+      this.$store.commit("generator/triggerTrim", {
         index: this.clipIndex.index,
         threshold: this.trimThreshold,
       });
     },
     onUndo() {
-      this.$store.commit("triggerUndo", {
+      this.$store.commit("generator/triggerUndo", {
         index: this.clipIndex.index,
         signature: new Date().getTime(),
       });
     },
     setSeconds(seconds) {
       this.duration = seconds;
-      this.$store.commit("setDuration", {
+      this.$store.commit("generator/setDuration", {
         duration: seconds,
         index: this.clipIndex.index,
       });

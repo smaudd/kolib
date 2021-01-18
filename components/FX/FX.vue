@@ -64,25 +64,3 @@ export default {
   },
 };
 </script>
-
-<style>
-.arrow-button {
-  width: 25px;
-  height: 25px;
-  position: relative;
-}
-.clip-label {
-  /* position: absolute; */
-  border-top-right-radius: 7px;
-  border-top-left-radius: 7px;
-  /* top: .1rem;
-  left: 0.25rem; */
-  padding: 0px 5px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.box {
-  border-top-left-radius: 0px;
-}
-</style>

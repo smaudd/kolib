@@ -1,15 +1,17 @@
 <template>
-  <div class="bg-web">
+  <div>
+    <!-- <Nav /> -->
     <nuxt />
-    <ErrorModal />
   </div>
 </template>
 
 <script>
 import ErrorModal from "~/components/ErrorModal.vue";
+import Nav from "~/components/Nav.vue";
+
 export default {
   components: {
-    ErrorModal,
+    Nav,
   },
 };
 </script>

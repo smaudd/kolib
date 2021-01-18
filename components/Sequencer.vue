@@ -42,7 +42,10 @@ export default {
         note: "C4",
         velocity: 1,
       }));
-    this.registerEncoder();
+    this.setParts();
+    if (process.client) {
+      this.registerEncoder();
+    }
   },
   computed: {
     ...mapState({
@@ -52,7 +55,7 @@ export default {
     }),
   },
   watch: {
-    "$store.state.loadEmitter": function () {
+    "$store.state.generator.loadEmitter": function () {
       this.setParts();
     },
     space: function () {
@@ -80,10 +83,16 @@ export default {
         }));
     },
     async registerEncoder() {
-      const { MediaRecorder, register } = require("extendable-media-recorder");
-      const { connect } = require("extendable-media-recorder-wav-encoder");
-      await register(await connect());
-      this.MediaRecorder = MediaRecorder;
+      if (!window.registeredWavEnconder) {
+        const {
+          MediaRecorder,
+          register,
+        } = require("extendable-media-recorder");
+        const { connect } = require("extendable-media-recorder-wav-encoder");
+        await register(await connect());
+        window.registeredWavEnconder = true;
+      }
+      this.MediaRecorder = require("extendable-media-recorder").MediaRecorder;
       this.registerRecorder();
     },
     async registerRecorder() {
@@ -116,7 +125,9 @@ export default {
       URL.revokeObjectURL(url);
     },
     async toggleSequencer({ record }) {
-      if (this.$store.state.clips.every((clip) => clip === undefined)) {
+      if (
+        this.$store.state.generator.clips.every((clip) => clip === undefined)
+      ) {
         return;
       }
       this.playing = true;
