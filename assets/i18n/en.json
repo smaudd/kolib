@@ -17,5 +17,15 @@
   "PLAY": "play",
   "PLAY_SAVE": "play & save",
   "AUTO_TRIM": "auto trim",
-  "KIT_NAME": "kit name"
+  "KIT_NAME": "kit name",
+  "LIBRARY": "library",
+  "LOGIN": "login",
+  "CREATE": "create",
+  "EMAIL": "email",
+  "PASSWORD": "password",
+  "SIGNUP": "signup",
+  "USERNAME": "username",
+  "ENTER_VALID_EMAIL": "enter a valid email",
+  "ENTER_VALID_PASSWORD": "enter a valid password",
+  "ENTER_VALID_USERNAME": "enter a valid username"
 }

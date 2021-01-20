@@ -39,16 +39,24 @@ export default {
     ['@nuxtjs/firebase',
     {
       config: {
-        apiKey: "AIzaSyBzwl4SyuE1Lg30YtgEknZRDw7R9tRxF_U",
-        authDomain: "kolib-1.firebaseapp.com",
-        projectId: "kolib-1",
-        storageBucket: "kolib-1.appspot.com",
-        messagingSenderId: "816854528141",
-        appId: "1:816854528141:web:68ccd613b6c82481fab2c4",
-        measurementId: "G-MLCH3V5R8R"
+        apiKey: process.env.API_KEY,
+        authDomain: process.env.AUTH_DOMAIN,
+        projectId: process.env.PROJECT_ID,
+        storageBucket: process.env.STORAGE_BUCKET,
+        messagingSenderId: process.env.MESSAGING_SENDER_ID,
+        appId: process.env.APP_ID,
+        measurementId: process.env.MEASUREMENT_ID,
       },
       services: {
-        auth: true, // Just as example. Can be any other service.
+        auth: {
+          persistence: 'local', // default
+          initialize: {
+            onAuthStateChangedMutation: 'ON_AUTH_STATE_CHANGED_MUTATION',
+            onAuthStateChangedAction: 'onAuthStateChangedAction',
+            subscribeManually: false
+          },
+          ssr: false, // default
+        }, // Just as example. Can be any other service.
         firestore: true,
         storage: true,
       }

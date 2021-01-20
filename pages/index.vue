@@ -1,8 +1,6 @@
 <template>
   <div class="flex items-center justify-center h-screen select-none">
     <Generator />
-
-    
   </div>
 </template>
 
@@ -11,7 +9,7 @@ import Generator from "~/components/Generator.vue";
 
 export default {
   components: {
-    Generator
+    Generator,
   },
   created() {
     if (process.client) {
@@ -31,6 +29,8 @@ export default {
       e.stopPropagation();
     },
   },
+  transition: "page",
 };
 </script>
+
 

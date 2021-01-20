@@ -4,20 +4,21 @@
       class="flex items-center p-2 px-4 font-mono transition-colors duration-150 rounded-md cursor-pointer text-quicksilver hover:text-melon"
       :class="{ 'text-melon': $route.fullPath === '/' }"
     >
-      <NuxtLink to="/">create</NuxtLink>
+      <NuxtLink to="/">{{ $t("CREATE") }}</NuxtLink>
     </div>
     <div
       class="flex items-center p-2 px-4 font-mono transition-colors duration-150 rounded-md cursor-pointer text-quicksilver hover:text-melon"
       :class="{ 'text-melon': $route.fullPath === '/library' }"
     >
-      <NuxtLink to="/library">library</NuxtLink>
+      <NuxtLink to="/library">{{ $t("LIBRARY") }}</NuxtLink>
     </div>
     <div class="flex-1" />
     <div
       class="flex items-center p-2 font-mono transition-colors duration-150 rounded-md cursor-pointer text-quicksilver hover:text-melon"
       :class="{ 'text-melon': $route.fullPath === '/login' }"
     >
-      login
+      <NuxtLink to="/login" v-if="!user">{{ $t("LOGIN") }}</NuxtLink>
+      <NuxtLink to="/profile" v-else>{{ user.displayName }}</NuxtLink>
     </div>
   </nav>
 </template>
@@ -28,8 +29,17 @@ export default {
   components: {
     Snack,
   },
+  computed: {
+    user() {
+      console.log(this.$store.user, 'EL PUTO AMO')
+      return this.$fire.auth.currentUser;
+    },
+  },
   created() {
-    console.log(this.$route);
+    console.log(
+      this.$fire.auth.currentUser,
+      this.$fire.auth.currentUser === null
+    );
   },
 };
 </script>

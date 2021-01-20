@@ -1,6 +1,6 @@
 <template>
   <div
-    class="w-full p-2 rounded-lg max-h-566px md:max-w-375px bg-davys text-davys"
+    class="w-full p-2 rounded-lg max-h-566px max-w-375px bg-davys text-davys"
   >
     <Editor />
     <Grid />
