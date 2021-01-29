@@ -66,7 +66,7 @@ export default {
         cursorColor: "transparent",
         hideScrollbar: true,
         interact: false,
-        height: height - 16 * 4 * 0.5,
+        height: height - 16 * 6 * 0.5,
       });
       this.wavesurfer.on("ready", () => {
         this.$emit("load", {

@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col flex-grow">
+  <div class="flex flex-col flex-grow p-1">
     <div class="flex justify-end">
       <div class="ml-1" v-for="(value, key) in fx" :key="key">
         <Snack

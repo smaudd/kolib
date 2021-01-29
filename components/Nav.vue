@@ -1,24 +1,28 @@
 <template>
-  <nav class="fixed inset-0 flex items-center px-4" style="height: 50px">
+  <nav class="flex items-center w-full p-2 pb-0">
     <div
-      class="flex items-center p-2 px-4 font-mono transition-colors duration-150 rounded-md cursor-pointer text-quicksilver hover:text-melon"
+      class="flex items-center p-1 mr-2 font-mono transition-colors duration-150 border rounded-md cursor-pointer text-quicksilver hover:text-melon hover:bg-davys border-quicksilver"
       :class="{ 'text-melon': $route.fullPath === '/' }"
     >
       <NuxtLink to="/">{{ $t("CREATE") }}</NuxtLink>
     </div>
     <div
-      class="flex items-center p-2 px-4 font-mono transition-colors duration-150 rounded-md cursor-pointer text-quicksilver hover:text-melon"
+      class="flex items-center p-1 font-mono transition-colors duration-150 border rounded-md cursor-pointer text-quicksilver hover:text-melon hover:bg-davys border-quicksilver"
       :class="{ 'text-melon': $route.fullPath === '/library' }"
     >
       <NuxtLink to="/library">{{ $t("LIBRARY") }}</NuxtLink>
     </div>
     <div class="flex-1" />
     <div
-      class="flex items-center p-2 font-mono transition-colors duration-150 rounded-md cursor-pointer text-quicksilver hover:text-melon"
-      :class="{ 'text-melon': $route.fullPath === '/login' }"
+      class="flex items-center p-1 font-mono transition-colors duration-150 border rounded-md cursor-pointer text-quicksilver hover:text-melon hover:bg-davys border-quicksilver"
+      :class="{
+        'text-melon': ['/login', '/profile'].includes($route.fullPath),
+      }"
     >
-      <NuxtLink to="/login" v-if="!user">{{ $t("LOGIN") }}</NuxtLink>
-      <NuxtLink to="/profile" v-else>{{ user.displayName }}</NuxtLink>
+      <!-- <NuxtLink to="/profile" v-if="$store.state.user">{{
+        displayName
+      }}</NuxtLink>
+      <NuxtLink to="/login" v-else>{{ $t("LOGIN") }}</NuxtLink> -->
     </div>
   </nav>
 </template>
@@ -30,16 +34,28 @@ export default {
     Snack,
   },
   computed: {
-    user() {
-      console.log(this.$store.user, 'EL PUTO AMO')
-      return this.$fire.auth.currentUser;
+    displayName() {
+      if (this.$store.state.user.displayName) {
+        const displayName = this.$store.state.user.displayName;
+        if (displayName.length > 8) {
+          return displayName.substring(0, 8).trim() + "..";
+        }
+        return displayName;
+      }
     },
   },
   created() {
-    console.log(
-      this.$fire.auth.currentUser,
-      this.$fire.auth.currentUser === null
-    );
+    if (
+      this.$store.state.user &&
+      this.redirectRoutes.includes(this.$router.currentRoute.path)
+    ) {
+      this.$router.push("/profile");
+    }
+  },
+  data() {
+    return {
+      redirectRoutes: ["/login", "singup"],
+    };
   },
 };
 </script>

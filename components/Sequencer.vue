@@ -1,30 +1,50 @@
 <template>
-  <div class="flex">
-    <div
-      @click="toggleSequencer({ record: false })"
-      class="flex-1 w-1/2 p-1 text-sm transition-colors duration-150 border rounded-md cursor-pointer border-quicksilver text-quicksilver hover:bg-granny hover:text-davys"
-      style="margin-right: 0.125rem"
-      :class="{
-        'pointer-events-none bg-ryb animation-blink text-light': playing,
-      }"
-    >
-      {{ $t("PLAY") }}
+  <div>
+    <div class="flex">
+      <div
+        @click="toggleSequencer({ record: true })"
+        class="flex items-center justify-center flex-1 w-1/2 p-1 ml-1 text-sm transition-colors duration-150 border rounded-md cursor-pointer border-quicksilver text-quicksilver hover:bg-granny hover:text-davys"
+        style="margin-left: 0.125rem"
+        :class="{
+          'pointer-events-none bg-ryb animation-blink text-light': playing,
+        }"
+      >
+        {{ $t("PLAY") }}
+      </div>
+    </div>
+    <div v-if="file && !$store.state.generator.loading">
+      <div
+        @click="download"
+        class="flex items-center justify-center flex-1 w-full p-1 mt-1 ml-1 text-sm transition-colors duration-150 border rounded-md cursor-pointer border-quicksilver text-quicksilver hover:bg-granny hover:text-davys"
+        style="margin-left: 0.125rem"
+        :class="{
+          'pointer-events-none animation-blink text-light': playing,
+        }"
+        :disabled="playing"
+      >
+        {{ $t("DOWNLOAD") }}
+      </div>
+      <!-- <div
+        @click="share"
+        class="flex items-center justify-center flex-1 w-full p-1 mt-1 ml-1 text-sm transition-colors duration-150 border rounded-md cursor-pointer border-quicksilver text-quicksilver hover:bg-granny hover:text-davys"
+        style="margin-left: 0.125rem"
+        :class="{
+          'pointer-events-none bg-ryb animation-blink text-light': playing,
+        }"
+      >
+        {{ $t("SHARE") }}
+      </div> -->
     </div>
     <div
-      @click="toggleSequencer({ record: true })"
-      class="flex-1 w-1/2 p-1 ml-1 text-sm transition-colors duration-150 border rounded-md cursor-pointer border-quicksilver text-quicksilver hover:bg-granny hover:text-davys"
-      style="margin-left: 0.125rem"
-      :class="{
-        'pointer-events-none bg-ryb animation-blink text-light': playing,
-      }"
+      v-else-if="!playing"
+      class="p-1 mt-1 font-mono text-sm border rounded-md text-quicksilver border-quicksilver"
     >
-      {{ $t("PLAY_SAVE") }}
+      {{ stateMessage }}
     </div>
   </div>
 </template>
 
 <script>
-import { Recorder } from "tone";
 import { mapState } from "vuex";
 import { samplers } from "~/store/samplers";
 import { ffmpegTrim } from "~/lib/ffmpeg";
@@ -53,6 +73,12 @@ export default {
         return clips;
       },
     }),
+    stateMessage() {
+      if (this.$store.state.generator.loading) {
+        return this.$t("PROCESSING");
+      }
+      return this.$t("PLAY_TO_DOWNLOAD");
+    },
   },
   watch: {
     "$store.state.generator.loadEmitter": function () {
@@ -63,6 +89,9 @@ export default {
     },
   },
   methods: {
+    share() {
+      this.$emit("share", this.file);
+    },
     setParts() {
       this.parts = samplers
         .filter((item) => item.sampler.buffer.loaded)
@@ -83,11 +112,9 @@ export default {
         }));
     },
     async registerEncoder() {
+      // require order is important
       if (!window.registeredWavEnconder) {
-        const {
-          MediaRecorder,
-          register,
-        } = require("extendable-media-recorder");
+        const { register } = require("extendable-media-recorder");
         const { connect } = require("extendable-media-recorder-wav-encoder");
         await register(await connect());
         window.registeredWavEnconder = true;
@@ -102,21 +129,22 @@ export default {
         mimeType: "audio/wav",
       });
       const chunks = [];
-      this.recorder.ondataavailable = (event) => {
+      this.recorder.ondataavailable = async (event) => {
         if (event.data.size > 0) {
           chunks.push(event.data);
-          this.download(chunks);
+          this.$store.commit("generator/loading", true);
+          const blob = new Blob(chunks, { type: "audio/wav" });
+          const buffer = await blob.arrayBuffer();
+          this.file = new File([buffer], `${this.name}.wav`, {
+            type: "audio/wav",
+          });
+          this.file = await ffmpegTrim({ file: this.file, type: "start" });
+          this.$store.commit("generator/loading", false);
         }
       };
     },
-    async download(chunks) {
-      const blob = new Blob(chunks, { type: "audio/wav" });
-      const buffer = await blob.arrayBuffer();
-      let file = new File([buffer], `${this.name}.wav`, {
-        type: "audio/wav",
-      });
-      file = await ffmpegTrim({ file, type: "start" });
-      const url = URL.createObjectURL(file);
+    async download() {
+      const url = URL.createObjectURL(this.file);
       const a = document.createElement("a");
       document.body.appendChild(a);
       a.href = url;
@@ -160,6 +188,7 @@ export default {
   data() {
     return {
       playing: false,
+      file: null,
     };
   },
 };

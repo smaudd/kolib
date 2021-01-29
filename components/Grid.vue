@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="grid grid-cols-4 grid-rows-4 gap-1 rounded-md bg-davys">
+    <div class="grid h-full grid-cols-4 grid-rows-4 gap-1 p-1 rounded-md bg-davys">
       <Pad
         v-for="(pad, index) in pads"
         :key="pad"

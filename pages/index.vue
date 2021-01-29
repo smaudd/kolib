@@ -1,7 +1,5 @@
 <template>
-  <div class="flex items-center justify-center h-screen select-none">
-    <Generator />
-  </div>
+  <Generator />
 </template>
 
 <script>

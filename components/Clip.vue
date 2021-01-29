@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col flex-grow overflow-hidden">
+  <div class="flex flex-col flex-grow p-1 overflow-hidden">
     <template v-if="!clipIndex">
       <p class="flex-grow text-sm text-quicksilver">
         {{ $t("LOAD_SAMPLE") }}
@@ -12,7 +12,7 @@
       <div class="mb-1">
         <Slider
           :min="-100"
-          :max="-15"
+          :max="-5"
           :step="1"
           :value="trimThreshold"
           :title="$t('THRESHOLD')"
@@ -93,7 +93,7 @@ export default {
   data() {
     return {
       duration: "",
-      trimThreshold: -10,
+      trimThreshold: -15,
     };
   },
 };

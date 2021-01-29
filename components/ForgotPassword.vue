@@ -1,7 +1,10 @@
 <template>
-  <div
-    class="w-full h-full p-1 rounded-md rounded-tl-none bg-davys"
-  >
+  <div class="w-full h-full p-1 rounded-md rounded-tl-none bg-davys">
+    <div
+      class="p-1 mb-1 font-mono text-sm border rounded-md bg-davys border-quicksilver text-quicksilver sm:max-w-sm"
+    >
+      {{ $t("FORGOT_PASSWORD_EMAIL") }}
+    </div>
     <form class="flex flex-col justify-between">
       <div>
         <div class="mb-1">
@@ -11,23 +14,17 @@
             :value="form.email"
           />
         </div>
-        <div class="mb-1">
-          <Input
-            :label="$t('PASSWORD')"
-            type="password"
-            v-on:input="form.password = $event.target.value"
-            :value="form.password"
-          />
-        </div>
         <div
-          v-if="errors"
-          v-html="errors"
+          v-if="errors || success"
           class="p-1 my-1 font-mono text-xs border rounded-md text-melon border-melon"
-        ></div>
+        >
+          <div v-if="errors" v-html="errors" />
+          <div v-if="success">{{ $t("FORGOT_EMAIL_SENT") }}</div>
+        </div>
       </div>
       <div class="">
         <Button
-          :label="$t('LOGIN')"
+          :label="$t('RECOVER')"
           type="submit"
           v-on:click="onSubmit"
           :loading="loading"
@@ -49,20 +46,25 @@ export default {
   methods: {
     async onSubmit() {
       this.loading = true;
+      this.success = false;
       this.errors = null;
       const validation = this.validate(this.form);
       if (validation.valid) {
         try {
-          const user = await this.$fire.auth.signInWithEmailAndPassword(
-            this.form.email,
-            this.form.password
+          console.log("aki");
+          const result = await this.$fire.auth.sendPasswordResetEmail(
+            this.form.email
           );
-          this.$store.commit("ON_SET_USER", this.$fire.auth.currentUser);
-          this.$router.push("/");
+          this.loading = false;
+          this.success = true;
         } catch (err) {
+          this.loading = false;
+          if (err.code === "auth/user-not-found") {
+            this.success = true;
+            return;
+          }
           this.errors = err.message.toLowerCase();
         }
-        this.loading = false;
         return;
       }
       this.loading = false;
@@ -72,29 +74,24 @@ export default {
         }
         return acc;
       }, "");
-      console.log(this.errors);
     },
     validate(form) {
       const email =
         /.+@.+\..+/.test(form.email) || this.$t("ENTER_VALID_EMAIL");
-      const password =
-        form.password.length >= 6 || this.$t("ENTER_VALID_PASSWORD");
       return {
         email,
-        password,
-        valid: email === true && password === true,
+        valid: email === true,
       };
     },
   },
   data() {
     return {
       form: {
-        username: "",
         email: "",
-        password: "",
       },
       errors: null,
       loading: false,
+      success: false,
     };
   },
 };

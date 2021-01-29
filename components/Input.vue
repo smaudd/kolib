@@ -1,5 +1,5 @@
 <template>
-  <div class="border rounded-md border-quicksilver text-quicksilver bg-davys">
+  <div class="flex-1 border rounded-md border-quicksilver text-quicksilver bg-davys">
     <span v-if="label" class="pl-1 font-mono text-xs text-quicksilver">{{
       label
     }}</span>

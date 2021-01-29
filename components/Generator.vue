@@ -1,22 +1,20 @@
 <template>
   <div
-    class="w-full p-2 rounded-lg max-h-566px max-w-375px bg-davys text-davys"
+    class="w-full h-full p-2 rounded-lg max-w-375px bg-davys text-davys"
+    :class="{
+      'animation-blink pointer-events-none': $store.state.generator.loading,
+    }"
   >
     <Editor />
-    <Grid />
   </div>
 </template>
 
 <script>
-import Grid from "~/components/Grid.vue";
 import Editor from "~/components/Editor.vue";
-import Sequencer from "~/components/Sequencer.vue";
 
 export default {
   components: {
-    Grid,
     Editor,
-    Sequencer,
   },
 };
 </script>

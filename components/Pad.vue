@@ -1,7 +1,7 @@
 <template>
   <div
     @click="!clip.file ? openFile() : () => {}"
-    class="flex items-center justify-center p-4 overflow-hidden transition-all duration-200 rounded-lg cursor-pointer h-14"
+    class="flex items-center justify-center h-full p-4 overflow-hidden transition-all duration-200 rounded-lg cursor-pointer"
     :class="{
       'bg-secondary text-primary': over && !$store.state.generator.loading,
       'bg-quicksilver text-secondary hover:bg-light':
