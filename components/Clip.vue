@@ -30,7 +30,8 @@
           </div>
         </Slider>
       </div>
-      <Waveform v-on:load="setSeconds($event)" />
+      <Drawer v-on:load="setSeconds($event)" />
+      <!-- <Waveform v-on:load="setSeconds($event)" /> -->
     </template>
   </div>
 </template>
@@ -38,6 +39,8 @@
 <script>
 import { mapState } from "vuex";
 import Waveform from "~/components/Waveform.vue";
+import Drawer from "~/components/Drawer.vue";
+
 import Snack from "~/components/Snack.vue";
 import Slider from "~/components/Slider.vue";
 
@@ -46,6 +49,7 @@ export default {
     Waveform,
     Snack,
     Slider,
+    Drawer,
   },
   computed: {
     ...mapState({
@@ -83,6 +87,7 @@ export default {
       });
     },
     setSeconds(seconds) {
+      console.log("Los segundos", seconds);
       this.duration = seconds;
       this.$store.commit("generator/setDuration", {
         duration: seconds,

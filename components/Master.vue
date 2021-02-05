@@ -1,11 +1,13 @@
 <template>
   <div class="flex-grow p-1">
-    <div v-if="!shareConfirmation">
+    <div ref="wave" v-show="false"></div>
+    <div v-if="!shareData">
       <div class="flex-grow mt-1">
         <Input
           :label="$t('KIT_NAME')"
           :value="name"
           :placeholder="$t('KIT_NAME')"
+          v-on:input="name = $event.target.value"
         />
       </div>
       <div class="flex-grow mt-1">
@@ -53,9 +55,9 @@
       class="p-1 text-sm border rounded-md text-quicksilver border-quicksilver"
       v-else
     >
-      <p>share to library {{ shareConfirmation.file.name }}??</p>
+      <p>share to library {{ shareData.file.name }}??</p>
       <div class="flex flex-wrap">
-        <div v-for="tag of shareConfirmation.tags" :key="tag" class="mb-1 mr-1">
+        <div v-for="tag of shareData.tags" :key="tag" class="mb-1 mr-1">
           <Snack :label="`#${tag}`" />
         </div>
       </div>
@@ -70,10 +72,13 @@
         <div class="w-1/2 ml-1">
           <Button
             :label="$t('CANCEL')"
-            v-on:click="shareConfirmation = null"
+            v-on:click="shareData = null"
             :loading="loading"
           />
         </div>
+      </div>
+      <div v-if="errors">
+        {{ errors }}
       </div>
     </div>
   </div>
@@ -89,6 +94,7 @@ import InputTag from "~/components/InputTag";
 import generateName from "~/lib/generateName";
 import getSignedUrl from "~/lib/getSignedUrl";
 import { ffmpegCompressMP3 } from "~/lib/ffmpeg";
+import { setKit } from "~/lib/firebaseQueries";
 
 export default {
   components: {
@@ -99,7 +105,42 @@ export default {
     InputTag,
     Button,
   },
+  mounted() {
+    this.setKit = setKit;
+    if (process.client) {
+      const WaveSurfer = require("wavesurfer.js");
+      this.wavesurfer = WaveSurfer.create({
+        container: this.$refs.wave,
+        waveColor: "#FFBFB7",
+        progressColor: "purple",
+        cursorColor: "transparent",
+        hideScrollbar: true,
+        interact: false,
+        height: 100,
+      });
+      this.wavesurfer.on("waveform-ready", this.onWaveLoad);
+    }
+  },
   methods: {
+    async onWaveLoad() {
+      setTimeout(async () => {
+        const image = await this.wavesurfer.exportImage("image/png", 1);
+        const img = document.createElement("img");
+        img.src = image;
+        document.body.append(img);
+        await this.setKit({
+          kitData: {
+            name: this.shareData.file.name.split(".")[0],
+            tags: this.tags,
+            path: `${this.$store.state.user.uid}/${
+              this.shareData.file.name.split(".")[0]
+            }`,
+            image,
+          },
+        });
+        this.loading = false;
+      }, 5000);
+    },
     onSampleSpaceChange({ target }) {
       this.sampleSpace = +target.value;
     },
@@ -118,7 +159,6 @@ export default {
       });
     },
     onTagsChange(values) {
-      console.log("values");
       this.tags = values;
     },
     onShare(file) {
@@ -127,34 +167,63 @@ export default {
         tags: this.tags,
         name: file.name,
       };
-      this.shareConfirmation = doc;
+      this.shareData = doc;
     },
     async confirmShare() {
       this.loading = true;
       try {
-        const signedUrl = await getSignedUrl(this.shareConfirmation.file);
-        const res = await this.uploadFile(signedUrl);
-        console.log(res);
+        console.log(this.shareData.file);
+        const signedUrls = await getSignedUrl({
+          files: [
+            {
+              folder: "wavs",
+              name: `${this.$store.state.user.uid}/${this.shareData.file.name}`,
+              type: "audio/wav",
+            },
+            {
+              folder: "mp3s",
+              name: `${
+                this.$store.state.user.uid
+              }/${this.shareData.file.name.replace("wav", "mp3")}`,
+              type: "audio/mp3",
+            },
+          ],
+        });
+        for await (const url of signedUrls) {
+          await this.uploadFile({
+            signedUrl: url,
+            compression: url.includes("mp3"),
+          });
+        }
       } catch (err) {
         console.log(err);
       }
     },
-    async uploadFile(signedUrl) {
+    async uploadFile({ signedUrl, compression }) {
       try {
-        const mp3 = await ffmpegCompressMP3({
-          file: this.shareConfirmation.file,
-        });
+        const id = `${this.$store.state.user.uid}/${this.shareData.file.name}`;
+        let file = this.shareData.file;
+
+        if (compression) {
+          file = await ffmpegCompressMP3({
+            file: this.shareData.file,
+          });
+        }
         const res = await fetch(signedUrl, {
           method: "PUT",
-          body: mp3,
+          body: new File([file], id, { type: file.type }), // rename with id
           headers: {
-            "Content-Type": this.shareConfirmation.file.type,
+            "Content-Type": file.type,
             "x-amz-acl": "public-read",
           },
         });
+        if (compression) {
+          console.log(this.wavesurfer);
+          this.wavesurfer.load(URL.createObjectURL(file));
+        }
         return res;
       } catch (err) {
-        console.log(err);
+        this.errors = err;
         return false;
       }
     },
@@ -166,8 +235,10 @@ export default {
       trimThreshold: -20,
       autoTrim: false,
       tags: [],
-      shareConfirmation: null,
+      shareData: null,
       loading: false,
+      errors: null,
+      image: null,
     };
   },
 };

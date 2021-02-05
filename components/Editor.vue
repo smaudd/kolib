@@ -101,7 +101,7 @@ export default {
     "$store.state.generator.durations": function () {
       console.log(this.$store.state.generator.durations)
       this.totalDuration = this.$store.state.generator.durations
-        .reduce((acc, current) => (acc += +current.duration), 0)
+        .reduce((acc, current) => (acc += +current), 0)
         .toFixed(1);
     },
   },
@@ -112,7 +112,7 @@ export default {
   },
   data() {
     return {
-      currentPage: "master",
+      currentPage: "clip",
       totalDuration: 0,
     };
   },

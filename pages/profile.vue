@@ -1,5 +1,8 @@
 <template>
-  <div class="relative flex items-center justify-center h-full">
+  <div
+    class="relative flex items-center justify-center h-full"
+    v-show="$route.path !== '/'"
+  >
     <Container
       :slides="containerSlides"
       :currentPage="currentPage"
@@ -38,7 +41,7 @@ export default {
           label: this.$t("LOGOUT"),
         },
       ],
-      currentPage: "logout",
+      currentPage: "profile",
     };
   },
 };

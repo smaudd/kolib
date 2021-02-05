@@ -3,8 +3,7 @@
     <div class="flex">
       <div
         @click="toggleSequencer({ record: true })"
-        class="flex items-center justify-center flex-1 w-1/2 p-1 ml-1 text-sm transition-colors duration-150 border rounded-md cursor-pointer border-quicksilver text-quicksilver hover:bg-granny hover:text-davys"
-        style="margin-left: 0.125rem"
+        class="flex items-center justify-center flex-1 w-1/2 p-1 text-sm transition-colors duration-150 border rounded-md cursor-pointer border-quicksilver text-quicksilver hover:bg-granny hover:text-davys"
         :class="{
           'pointer-events-none bg-ryb animation-blink text-light': playing,
         }"
@@ -15,8 +14,7 @@
     <div v-if="file && !$store.state.generator.loading">
       <div
         @click="download"
-        class="flex items-center justify-center flex-1 w-full p-1 mt-1 ml-1 text-sm transition-colors duration-150 border rounded-md cursor-pointer border-quicksilver text-quicksilver hover:bg-granny hover:text-davys"
-        style="margin-left: 0.125rem"
+        class="flex items-center justify-center flex-1 w-full p-1 mt-1 text-sm transition-colors duration-150 border rounded-md cursor-pointer border-quicksilver text-quicksilver hover:bg-granny hover:text-davys"
         :class="{
           'pointer-events-none animation-blink text-light': playing,
         }"
@@ -24,16 +22,15 @@
       >
         {{ $t("DOWNLOAD") }}
       </div>
-      <!-- <div
+      <div
         @click="share"
-        class="flex items-center justify-center flex-1 w-full p-1 mt-1 ml-1 text-sm transition-colors duration-150 border rounded-md cursor-pointer border-quicksilver text-quicksilver hover:bg-granny hover:text-davys"
-        style="margin-left: 0.125rem"
+        class="flex items-center justify-center flex-1 w-full p-1 mt-1 text-sm transition-colors duration-150 border rounded-md cursor-pointer border-quicksilver text-quicksilver hover:bg-granny hover:text-davys"
         :class="{
           'pointer-events-none bg-ryb animation-blink text-light': playing,
         }"
       >
         {{ $t("SHARE") }}
-      </div> -->
+      </div>
     </div>
     <div
       v-else-if="!playing"
@@ -84,8 +81,13 @@ export default {
     "$store.state.generator.loadEmitter": function () {
       this.setParts();
     },
-    space: function () {
+    space() {
       this.setParts();
+    },
+    name() {
+      this.file = new File([this.file], `${this.name}.wav`, {
+        type: this.file.type,
+      });
     },
   },
   methods: {
@@ -123,6 +125,7 @@ export default {
       this.registerRecorder();
     },
     async registerRecorder() {
+      console.log(this.name);
       this.Tone = require("tone");
       this.dest = this.Tone.context.createMediaStreamDestination();
       this.recorder = new this.MediaRecorder(this.dest.stream, {

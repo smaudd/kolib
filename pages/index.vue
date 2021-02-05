@@ -1,5 +1,6 @@
 <template>
-  <Generator />
+  <!-- <Generator /> -->
+  <div></div>
 </template>
 
 <script>
@@ -27,7 +28,7 @@ export default {
       e.stopPropagation();
     },
   },
-  transition: "page",
+  // transition: "page",
 };
 </script>
 

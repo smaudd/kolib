@@ -1,3 +1,3 @@
 {
-  "signedUrlFunction": "https://us-central1-kolib-1.cloudfunctions.net/presignedUrl"
+  "signedUrlFunction": "http://localhost:5001/kolib-1/us-central1/presignedPutUrl"
 }

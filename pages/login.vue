@@ -1,5 +1,5 @@
 <template>
-  <div class="h-full">
+  <div class="h-full" v-show="$route.path !== '/'">
     <Container
       :slides="containerSlides"
       :currentPage="currentPage"

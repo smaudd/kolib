@@ -1,62 +1,43 @@
 const functions = require("firebase-functions");
 const aws = require("aws-sdk");
 
-exports.presignedGetUrl = functions.https.onRequest((req, res) => {
-  res.set("Access-Control-Allow-Origin", "https://kolib-1.web.app");
-  res.set("Access-Control-Allow-Methods", "GET");
-  res.set("Access-Control-Allow-Headers", "https://kolib-1.web.app");
-
-  if (req.method === "OPTIONS") {
-    return res.end();
-  }
-  const body = req.body;
-
-  const spaces = new aws.S3({
-    endpoint: new aws.Endpoint(functions.config().spaces.url),
-    accessKeyId: functions.config().spaces.keyid,
-    secretAccessKey: functions.config().spaces.secretkey,
-  });
-
-
-  const params = {
-    Bucket: "kolib",
-    Key: body.fileName,
-    Expires: 30, // Expires in 3 minutes
-    ContentType: body.fileType,
-    ACL: "public-read", // Remove this to make the file private
-  };
-
-  const signedUrl = spaces.getSignedUrl("getObject", params);
-
-  res.json({signedUrl});
-});
-
 exports.presignedPutUrl = functions.https.onRequest((req, res) => {
-  res.set("Access-Control-Allow-Origin", "https://kolib-1.web.app");
+  // return cors(() => {
+  res.set("Access-Control-Allow-Origin", "*");
   res.set("Access-Control-Allow-Methods", "GET, PUT, POST, OPTIONS");
-  res.set("Access-Control-Allow-Headers", "https://kolib-1.web.app");
+  res.set(
+      "Access-Control-Allow-Headers",
+      "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+  );
+
 
   if (req.method === "OPTIONS") {
     return res.end();
   }
   const body = req.body;
 
-  const spaces = new aws.S3({
-    endpoint: new aws.Endpoint(functions.config().spaces.url),
-    accessKeyId: functions.config().spaces.keyid,
-    secretAccessKey: functions.config().spaces.secretkey,
-  });
+  try {
+    const spaces = new aws.S3({
+      endpoint: new aws.Endpoint(functions.config().spaces.url),
+      accessKeyId: functions.config().spaces.keyid,
+      secretAccessKey: functions.config().spaces.secretkey,
+    });
+    const signedUrls = [];
+    for (const file of body.files) {
+      const params = {
+        Bucket: "kolib",
+        Key: file.path,
+        Expires: 30, // Expires in 30 seconds
+        ContentType: file.fileType,
+        ACL: "public-read", // Remove this to make the file private
+      };
+      const signedUrl = spaces.getSignedUrl("putObject", params);
+      signedUrls.push(signedUrl);
+    }
 
-
-  const params = {
-    Bucket: "kolib",
-    Key: body.fileName,
-    Expires: 30, // Expires in 3 minutes
-    ContentType: body.fileType,
-    ACL: "public-read", // Remove this to make the file private
-  };
-
-  const signedUrl = spaces.getSignedUrl("putObject", params);
-
-  res.json({signedUrl});
+    return res.json({signedUrls});
+  } catch (err) {
+    return res.send(err);
+  }
+  // });
 });

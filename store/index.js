@@ -39,7 +39,7 @@ export const mutations = {
       state.user = null
       return
     }
-    const { uuid, email, emailVerified, displayName } = user
-    state.user = { uuid, email, emailVerified, displayName }
+    const { uid, email, emailVerified, displayName } = user
+    state.user = { uid, email, emailVerified, displayName }
   }
 }

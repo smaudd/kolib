@@ -45,7 +45,7 @@
 <script>
 import Input from "~/components/Input";
 import Button from "~/components/Button";
-import { verifyUsername, saveUsername } from "~/lib/firebaseUsernames";
+import { verifyUsername, saveUsername } from "~/lib/firebaseQueries";
 
 export default {
   components: {
@@ -73,9 +73,11 @@ export default {
           await this.$fire.auth.currentUser.updateProfile({
             displayName: this.form.username,
           });
+          console.log(this.$fire.auth.currentUser);
           await this.saveUsername({
             username: this.form.username,
             uid: user.uid,
+            email: this.form.email,
           });
           this.$store.commit("ON_SET_USER", this.$fire.auth.currentUser);
           this.$router.push("/");

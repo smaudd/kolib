@@ -4,8 +4,9 @@
       class="relative flex flex-col items-baseline rounded-md min-w-375px max-w-375px bg-davys"
       style="height: 500px; max-height: 500px"
     >
-      <!-- <Nav /> -->
-      <VerifyEmail />
+      <Nav />
+      <Generator v-show="showGenerator" />
+      <!-- <VerifyEmail /> -->
       <nuxt />
     </div>
   </div>
@@ -14,21 +15,44 @@
 <script>
 import Nav from "~/components/Nav.vue";
 import VerifyEmail from "~/components/VerifyEmail.vue";
+import Generator from "~/components/Generator.vue";
 
 export default {
   components: {
     Nav,
     VerifyEmail,
+    Generator,
   },
-  // async created() {
-  //   if (process.client) {
-  //     const usersCollection = this.$fire.firestore.collection("usernames");
-  //     const data = {
-  //       name: "mnyname",
-  //     };
-  //     await usersCollection.add(data);
-  //   }
-  // },
+  created() {
+    console.log(this.$route);
+  },
+  watch: {
+    $route() {
+      if (this.$route.path === "/") {
+        setTimeout(() => {
+          this.showGenerator = true;
+        }, 100);
+        return;
+      }
+      this.showGenerator = false;
+    },
+  },
   middleware: "authenticated",
+  data() {
+    return {
+      showGenerator: this.$route.path === "/",
+    };
+  },
 };
 </script>
+
+<style>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s;
+}
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>

@@ -88,3 +88,7 @@ sw.*
 # Mac OSX
 .DS_Store
 .vercel
+
+spaces.json
+
+functions/.runtimeconfig.json
