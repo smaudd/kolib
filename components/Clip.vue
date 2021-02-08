@@ -1,12 +1,12 @@
 <template>
   <div class="flex flex-col flex-grow p-1 overflow-hidden">
     <template v-if="!clipIndex">
-      <p class="flex-grow text-sm text-quicksilver">
+      <p class="flex-grow text-md text-quicksilver">
         {{ $t("LOAD_SAMPLE") }}
       </p>
     </template>
     <template v-else>
-      <p class="text-sm whitespace-no-wrap text-quicksilver">
+      <p class="text-md whitespace-no-wrap text-quicksilver">
         {{ clipIndex.name }}
       </p>
       <div class="mb-1">
@@ -31,7 +31,6 @@
         </Slider>
       </div>
       <Drawer v-on:load="setSeconds($event)" />
-      <!-- <Waveform v-on:load="setSeconds($event)" /> -->
     </template>
   </div>
 </template>
@@ -87,7 +86,6 @@ export default {
       });
     },
     setSeconds(seconds) {
-      console.log("Los segundos", seconds);
       this.duration = seconds;
       this.$store.commit("generator/setDuration", {
         duration: seconds,

@@ -5,7 +5,7 @@
     <div class="flex">
       <div
         @click="togglePage('clip')"
-        class="w-1/4 text-xs cursor-pointer clip-label"
+        class="w-1/4 text-md cursor-pointer clip-label"
         :class="{
           'bg-davys text-quicksilver': currentPage === 'clip',
           'bg-quicksilver border-t border-l border-r border-davys hover:bg-davys hover:text-quicksilver transition-colors duration-150':
@@ -16,7 +16,7 @@
       </div>
       <div
         @click="togglePage('fx')"
-        class="w-1/4 text-xs cursor-pointer clip-label"
+        class="w-1/4 text-md cursor-pointer clip-label"
         :class="{
           'pointer-events-none': clipIndex === null,
           'bg-davys text-quicksilver': currentPage === 'fx',
@@ -28,7 +28,7 @@
       </div>
       <div
         @click="togglePage('master')"
-        class="w-1/4 text-xs cursor-pointer clip-label"
+        class="w-1/4 text-md cursor-pointer clip-label"
         :class="{
           'bg-davys text-quicksilver': currentPage === 'master',
           'bg-quicksilver border-t border-l border-r border-davys hover:bg-davys hover:text-quicksilver transition-colors duration-150':
@@ -37,7 +37,7 @@
       >
         {{ "master" }}
       </div>
-      <div class="flex justify-end flex-1 mr-1 text-sm text-right">
+      <div class="flex justify-end flex-1 mr-1 text-md text-right">
         {{ totalDuration }}s
       </div>
     </div>
@@ -98,8 +98,7 @@ export default {
     // },
   },
   watch: {
-    "$store.state.generator.durations": function () {
-      console.log(this.$store.state.generator.durations)
+    "$store.state.generator.durations": function() {
       this.totalDuration = this.$store.state.generator.durations
         .reduce((acc, current) => (acc += +current), 0)
         .toFixed(1);

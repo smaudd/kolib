@@ -1,14 +1,12 @@
 <template>
-  <div
-    class="flex h-full p-2 rounded-md bg-davys min-w-375px max-w-375px"
-  >
+  <div class="flex h-full p-2 rounded-md bg-davys min-w-375px max-w-375px">
     <div class="flex flex-col flex-1 h-full p-1 rounded-md bg-quicksilver">
       <div class="flex">
         <div
           v-for="slide of slides"
           :key="slide.name"
           @click="$emit('click', slide.name)"
-          class="w-1/4 font-mono text-xs cursor-pointer select-none label text-davys"
+          class="w-1/4 font-mono text-md cursor-pointer select-none label text-davys"
           :class="{
             'bg-davys text-quicksilver': currentPage === slide.name,
             'bg-quicksilver border-t border-l border-r border-davys hover:bg-davys hover:text-quicksilver transition-colors duration-150':

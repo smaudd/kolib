@@ -59,7 +59,6 @@ export default {
   async mounted() {
     this.getKits = getKits;
     this.kits = await this.getKits({});
-    console.log(this.$route.path);
   },
   destroyed() {
     if (process.client) {

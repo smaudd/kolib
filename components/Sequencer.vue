@@ -3,7 +3,7 @@
     <div class="flex">
       <div
         @click="toggleSequencer({ record: true })"
-        class="flex items-center justify-center flex-1 w-1/2 p-1 text-sm transition-colors duration-150 border rounded-md cursor-pointer border-quicksilver text-quicksilver hover:bg-granny hover:text-davys"
+        class="flex items-center justify-center flex-1 w-1/2 p-1 text-md transition-colors duration-150 border rounded-md cursor-pointer border-quicksilver text-quicksilver hover:bg-granny hover:text-davys"
         :class="{
           'pointer-events-none bg-ryb animation-blink text-light': playing,
         }"
@@ -14,7 +14,7 @@
     <div v-if="file && !$store.state.generator.loading">
       <div
         @click="download"
-        class="flex items-center justify-center flex-1 w-full p-1 mt-1 text-sm transition-colors duration-150 border rounded-md cursor-pointer border-quicksilver text-quicksilver hover:bg-granny hover:text-davys"
+        class="flex items-center justify-center flex-1 w-full p-1 mt-1 text-md transition-colors duration-150 border rounded-md cursor-pointer border-quicksilver text-quicksilver hover:bg-granny hover:text-davys"
         :class="{
           'pointer-events-none animation-blink text-light': playing,
         }"
@@ -24,7 +24,7 @@
       </div>
       <div
         @click="share"
-        class="flex items-center justify-center flex-1 w-full p-1 mt-1 text-sm transition-colors duration-150 border rounded-md cursor-pointer border-quicksilver text-quicksilver hover:bg-granny hover:text-davys"
+        class="flex items-center justify-center flex-1 w-full p-1 mt-1 text-md transition-colors duration-150 border rounded-md cursor-pointer border-quicksilver text-quicksilver hover:bg-granny hover:text-davys"
         :class="{
           'pointer-events-none bg-ryb animation-blink text-light': playing,
         }"
@@ -34,7 +34,7 @@
     </div>
     <div
       v-else-if="!playing"
-      class="p-1 mt-1 font-mono text-sm border rounded-md text-quicksilver border-quicksilver"
+      class="p-1 mt-1 font-mono text-md border rounded-md text-quicksilver border-quicksilver"
     >
       {{ stateMessage }}
     </div>
@@ -45,6 +45,7 @@
 import { mapState } from "vuex";
 import { samplers } from "~/store/samplers";
 import { ffmpegTrim } from "~/lib/ffmpeg";
+import drawWaveform from "~/lib/drawWaveform";
 
 export default {
   props: {
@@ -78,7 +79,7 @@ export default {
     },
   },
   watch: {
-    "$store.state.generator.loadEmitter": function () {
+    "$store.state.generator.loadEmitter": function() {
       this.setParts();
     },
     space() {
@@ -92,7 +93,11 @@ export default {
   },
   methods: {
     share() {
-      this.$emit("share", this.file);
+      this.$emit("share", {
+        file: this.file,
+        image: this.base64,
+        duration: this.duration,
+      });
     },
     setParts() {
       this.parts = samplers
@@ -142,6 +147,12 @@ export default {
             type: "audio/wav",
           });
           this.file = await ffmpegTrim({ file: this.file, type: "start" });
+          // const { duration, base64 } = await drawWaveform({
+          //   canvas: this.$refs.canvas,
+          //   arrayBuffer: await this.file.arrayBuffer(),
+          // });
+          // this.duration = duration;
+          // this.base64 = base64;
           this.$store.commit("generator/loading", false);
         }
       };

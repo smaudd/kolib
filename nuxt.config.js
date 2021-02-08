@@ -1,5 +1,4 @@
 import en from './assets/i18n/en.json'
-
 export default {
   /*
    ** Headers of the page

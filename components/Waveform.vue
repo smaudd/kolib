@@ -5,7 +5,7 @@
     :class="{ 'animation-blink': $store.state.generator.loading }"
   >
     <div id="waveform" ref="waveform" v-show="!error"></div>
-    <div v-if="error" class="flex flex-col flex-grow h-full text-sm">
+    <div v-if="error" class="flex flex-col flex-grow h-full text-md">
       <div class="flex-grow">{{ error }}</div>
       <div><Snack :label="$t('OK')" v-on:click="flushError" /></div>
     </div>

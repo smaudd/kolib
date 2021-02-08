@@ -23,9 +23,6 @@ export default {
     VerifyEmail,
     Generator,
   },
-  created() {
-    console.log(this.$route);
-  },
   watch: {
     $route() {
       if (this.$route.path === "/") {

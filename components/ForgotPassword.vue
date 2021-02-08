@@ -1,7 +1,7 @@
 <template>
   <div class="w-full h-full p-1 rounded-md rounded-tl-none bg-davys">
     <div
-      class="p-1 mb-1 font-mono text-sm border rounded-md bg-davys border-quicksilver text-quicksilver sm:max-w-sm"
+      class="p-1 mb-1 font-mono text-md border rounded-md bg-davys border-quicksilver text-quicksilver sm:max-w-sm"
     >
       {{ $t("FORGOT_PASSWORD_EMAIL") }}
     </div>
@@ -16,7 +16,7 @@
         </div>
         <div
           v-if="errors || success"
-          class="p-1 my-1 font-mono text-xs border rounded-md text-melon border-melon"
+          class="p-1 my-1 font-mono text-md border rounded-md text-melon border-melon"
         >
           <div v-if="errors" v-html="errors" />
           <div v-if="success">{{ $t("FORGOT_EMAIL_SENT") }}</div>

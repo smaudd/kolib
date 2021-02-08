@@ -49,6 +49,7 @@
   "SHARE": "share",
   "DOWNLOAD": "download",
   "CANCEL": "cancel",
-  "PLAY_TO_DOWNLOAD": "you need to play in order to download",
-  "PROCESSING": "processing audio..."
+  "PLAY_TO_DOWNLOAD": "you need to play in order to download or share",
+  "PROCESSING": "processing audio...",
+  "SHARE_SUCCESS_MESSAGE": "kit saved on community library!"
 }

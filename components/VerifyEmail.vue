@@ -6,7 +6,7 @@
         v-if="open"
       >
         <div
-          class="w-full p-1 font-mono text-sm border rounded-md text-melon border-melon bg-davys"
+          class="w-full p-1 font-mono text-md border rounded-md text-melon border-melon bg-davys"
         >
           <div class="mb-1" v-if="!message">{{ $t("VERIFY_EMAIL") }}</div>
           <div class="mb-1" v-else>{{ message }}</div>
@@ -44,7 +44,7 @@ export default {
     },
   },
   watch: {
-    "$store.state.user": function () {
+    "$store.state.user": function() {
       this.open =
         this.$store.state.user && !this.$store.state.user.emailVerified;
     },

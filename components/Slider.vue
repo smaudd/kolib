@@ -4,7 +4,7 @@
     style="margin-top: 7px"
   >
     <div
-      class="flex self-stretch justify-between flex-grow mb-2 font-mono text-sm text-quicksilver"
+      class="flex self-stretch justify-between flex-grow mb-2 font-mono text-md text-quicksilver"
     >
       <div
         class="flex justify-between"

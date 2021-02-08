@@ -25,12 +25,12 @@
     "wavesurfer.js": "^4.4.0"
   },
   "devDependencies": {
-    "worker-loader": "^3.0.7",
     "@ffmpeg-installer/ffmpeg": "^1.0.20",
     "@ffprobe-installer/ffprobe": "^1.1.0",
     "@nuxtjs/tailwindcss": "^3.4.2",
-    "@vercel/node": "^1.8.5",
+    "firebase-functions": "^3.13.1",
     "fluent-ffmpeg": "^2.1.2",
-    "nodemon": "^1.18.9"
+    "nodemon": "^1.18.9",
+    "worker-loader": "^3.0.7"
   }
 }

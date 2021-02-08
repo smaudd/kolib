@@ -34,9 +34,10 @@ exports.presignedPutUrl = functions.https.onRequest((req, res) => {
       const signedUrl = spaces.getSignedUrl("putObject", params);
       signedUrls.push(signedUrl);
     }
-
+    console.log(signedUrls)
     return res.json({signedUrls});
   } catch (err) {
+    console.log(err)
     return res.send(err);
   }
   // });

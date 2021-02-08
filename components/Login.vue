@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="w-full h-full p-1 rounded-md rounded-tl-none bg-davys"
-  >
+  <div class="w-full h-full p-1 rounded-md rounded-tl-none bg-davys">
     <form class="flex flex-col justify-between">
       <div>
         <div class="mb-1">
@@ -22,7 +20,7 @@
         <div
           v-if="errors"
           v-html="errors"
-          class="p-1 my-1 font-mono text-xs border rounded-md text-melon border-melon"
+          class="p-1 my-1 font-mono text-md border rounded-md text-melon border-melon"
         ></div>
       </div>
       <div class="">

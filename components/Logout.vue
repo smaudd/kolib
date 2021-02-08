@@ -2,7 +2,7 @@
   <div class="w-full h-full p-1 rounded-md rounded-tl-none bg-davys">
     <div class="">
       <p
-        class="p-1 mb-1 font-mono text-sm border rounded-md text-quicksilver border-quicksilver"
+        class="p-1 mb-1 font-mono text-md border rounded-md text-quicksilver border-quicksilver"
       >
         {{ $t("LOGOUT_MESSAGE") }}
       </p>
