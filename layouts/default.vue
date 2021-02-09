@@ -4,41 +4,18 @@
       class="relative flex flex-col items-baseline rounded-md min-w-375px max-w-375px bg-davys"
       style="height: 500px; max-height: 500px"
     >
-      <Nav />
-      <Generator v-show="showGenerator" />
-      <!-- <VerifyEmail /> -->
+      <Generator />
       <nuxt />
     </div>
   </div>
 </template>
 
 <script>
-import Nav from "~/components/Nav.vue";
-import VerifyEmail from "~/components/VerifyEmail.vue";
 import Generator from "~/components/Generator.vue";
 
 export default {
   components: {
-    Nav,
-    VerifyEmail,
     Generator,
-  },
-  watch: {
-    $route() {
-      if (this.$route.path === "/") {
-        setTimeout(() => {
-          this.showGenerator = true;
-        }, 100);
-        return;
-      }
-      this.showGenerator = false;
-    },
-  },
-  middleware: "authenticated",
-  data() {
-    return {
-      showGenerator: this.$route.path === "/",
-    };
   },
 };
 </script>

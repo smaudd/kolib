@@ -1,44 +1,15 @@
-const functions = require("firebase-functions");
-const aws = require("aws-sdk");
+const express = require("express");
+const cors = require("cors");
 
-exports.presignedPutUrl = functions.https.onRequest((req, res) => {
-  // return cors(() => {
-  res.set("Access-Control-Allow-Origin", "*");
-  res.set("Access-Control-Allow-Methods", "GET, PUT, POST, OPTIONS");
-  res.set(
-      "Access-Control-Allow-Headers",
-      "Origin, X-Requested-With, Content-Type, Accept, Authorization"
-  );
+const app = express();
+const port = 4001;
 
+app.use(cors());
 
-  if (req.method === "OPTIONS") {
-    return res.end();
-  }
-  const body = req.body;
+app.get("*", () => {
+  res.send("OK");
+});
 
-  try {
-    const spaces = new aws.S3({
-      endpoint: new aws.Endpoint(functions.config().spaces.url),
-      accessKeyId: functions.config().spaces.keyid,
-      secretAccessKey: functions.config().spaces.secretkey,
-    });
-    const signedUrls = [];
-    for (const file of body.files) {
-      const params = {
-        Bucket: "kolib",
-        Key: file.path,
-        Expires: 30, // Expires in 30 seconds
-        ContentType: file.fileType,
-        ACL: "public-read", // Remove this to make the file private
-      };
-      const signedUrl = spaces.getSignedUrl("putObject", params);
-      signedUrls.push(signedUrl);
-    }
-    console.log(signedUrls)
-    return res.json({signedUrls});
-  } catch (err) {
-    console.log(err)
-    return res.send(err);
-  }
-  // });
+app.listen(port, () => {
+  console.log(`Example app listening at http://0.0.0.0:${port}`);
 });

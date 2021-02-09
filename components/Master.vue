@@ -48,7 +48,7 @@
       v-else-if="shareData && !success && !errors"
     >
       <p class="border border-quicksilver p-1 rounded-md text-melon">
-        share to library {{ shareData.file.name }}??
+        {{ $t("SHARE_TO_YT_PLAYLIST") }} {{ shareData.file.name }}??
       </p>
       <div class="flex-grow my-1">
         <InputTag
