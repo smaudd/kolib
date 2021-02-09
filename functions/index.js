@@ -6,7 +6,7 @@ const port = 4001;
 
 app.use(cors());
 
-app.get("*", () => {
+app.get("*", (req, res) => {
   res.send("OK");
 });
 
