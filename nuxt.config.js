@@ -38,42 +38,12 @@ export default {
   },
   modules: [
     'nuxt-i18n',
-    '@nuxtjs/firebase',
     '@nuxtjs/pwa'
   ],
   pwa: {
     meta: false,
     icon: false,
-    workbox: {
-      importScripts: [
-        '/firebase-auth-sw.js'
-      ],
-      dev: process.env.NODE_ENV === 'development',
-    }
-  },
-  firebase: {
-    config: {
-      apiKey: process.env.API_KEY,
-      authDomain: process.env.AUTH_DOMAIN,
-      projectId: process.env.PROJECT_ID,
-      storageBucket: process.env.STORAGE_BUCKET,
-      messagingSenderId: process.env.MESSAGING_SENDER_ID,
-      appId: process.env.APP_ID,
-      measurementId: process.env.MEASUREMENT_ID,
-    },
-    services: {
-      auth: {
-        ssr: true,
-        initialize: {
-          onAuthStateChangedMutation: 'ON_AUTH_STATE_CHANGED_MUTATION',
-          subscribeManually: false
-        },
-      },
-      firestore: true,
-      storage: true,
-    }
-  },
-  
+  },  
   i18n: {
     locales: ['en'],
     defaultLocale: 'en',
