@@ -12,7 +12,7 @@
       >
         <span>{{ title }}</span
         ><span
-          >{{ value }}<span v-if="unit">{{ unit }}</span></span
+          >{{ value.toFixed('1') }}<span v-if="unit">{{ unit }}</span></span
         >
       </div>
       <slot></slot>

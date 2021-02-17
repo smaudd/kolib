@@ -38,7 +38,7 @@
         {{ "master" }}
       </div>
       <div class="flex justify-end flex-1 mr-1 text-md text-right">
-        {{ totalDuration }}s
+        {{ totalDuration.toFixed("1") }}s
       </div>
     </div>
     <div class="flex justify-between flex-grow mb-1 rounded-lg bg-davys box">
@@ -58,6 +58,7 @@ import Master from "~/components/Master.vue";
 import Grid from "~/components/Grid.vue";
 import FX from "~/components/FX/FX.vue";
 import { mapState } from "vuex";
+import { samplers } from "~/store/samplers";
 
 export default {
   components: {
@@ -90,21 +91,24 @@ export default {
       this.togglePage("clip");
       return this.$store.state.generator.errors.message;
     },
-    // totalDuration() {
-    //   console.log(this.$store.state.generator.duration);
-    //   return this.$store.state.generator.durations
-    //     .reduce((acc, current) => (acc += +current.duration), 0)
-    //     .toFixed(1);
-    // },
   },
   watch: {
-    "$store.state.generator.durations": function() {
-      this.totalDuration = this.$store.state.generator.durations
-        .reduce((acc, current) => (acc += +current), 0)
-        .toFixed(1);
+    "$store.state.generator.sampleSpace": function () {
+      this.setTotalDuration();
+    },
+    "$store.state.generator.loadEmitter": function () {
+      this.setTotalDuration();
     },
   },
   methods: {
+    setTotalDuration() {
+      const space = this.$store.state.generator.sampleSpace;
+      const total = samplers
+        .filter((item) => item.sampler.buffer.loaded)
+        .map((item, index, self) => item.sampler.buffer.duration + space)
+        .reduce((current, acc) => (current += acc));
+      this.totalDuration = total;
+    },
     togglePage(next) {
       this.currentPage = next;
     },

@@ -22,6 +22,7 @@ export const state = () => ({
   trim: false,
   undo: null,
   durations: [],
+  sampleSpace: 0.2,
 })
 
 export const mutations = {
@@ -45,6 +46,9 @@ export const mutations = {
   },
   setAutoTrim(state, payload) {
     state.autoTrimAll = payload
+  },
+  setSampleSpace(state, payload) {
+    state.sampleSpace = payload
   },
   loading(state, value) {
     state.loading = value

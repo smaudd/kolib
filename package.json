@@ -12,7 +12,6 @@
   "dependencies": {
     "@ffmpeg/core": "^0.8.5",
     "@ffmpeg/ffmpeg": "^0.9.6",
-    "@nuxtjs/firebase": "^7.3.2",
     "@nuxtjs/pwa": "^3.3.4",
     "extendable-media-recorder": "^6.1.33",
     "extendable-media-recorder-wav-encoder": "^7.0.35",
@@ -20,8 +19,7 @@
     "nuxt": "^2.0.0",
     "nuxt-i18n": "^6.17.0",
     "tone": "^14.7.58",
-    "waveform-data": "^3.3.4",
-    "wavesurfer.js": "^4.4.0"
+    "waveform-data": "^3.3.4"
   },
   "devDependencies": {
     "@ffmpeg-installer/ffmpeg": "^1.0.20",

@@ -2,7 +2,7 @@
   "OK": "ok",
   "ONE_FILE_ALLOWED": "drop just one audio clip on the pad",
   "ONLY_AUDIO_ALLOWED": "only wav/mp3 files allowed",
-  "LOAD_SAMPLE": "load your samples",
+  "LOAD_SAMPLE": "drop or load your samples into the pads</br>trim the silent parts from your samples if needed</br>add fx if needed</br>tweak your sample space on the master section if needed</br>spread love and kits if needed",
   "PITCH_SHIFT": "pitch shift",
   "REVERB": "reverb",
   "WET": "wet",
@@ -49,7 +49,7 @@
   "SHARE": "share",
   "DOWNLOAD": "download",
   "CANCEL": "cancel",
-  "PLAY_TO_DOWNLOAD": "you need to play in order to download or share",
+  "PLAY_TO_DOWNLOAD": "you need to play the samples to record your kit",
   "PROCESSING": "processing audio...",
   "SHARE_SUCCESS_MESSAGE": "kit saved on community library!",
   "SHARE_TO_YT_PLAYLIST": "share to our YouTube playlist. We will manually review your kit and publish it to our Youtube channel if it works perfectly"

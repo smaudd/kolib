@@ -22,15 +22,6 @@
       >
         {{ $t("DOWNLOAD") }}
       </div>
-      <div
-        @click="share"
-        class="flex items-center justify-center flex-1 w-full p-1 mt-1 text-md transition-colors duration-150 border rounded-md cursor-pointer border-quicksilver text-quicksilver hover:bg-granny hover:text-davys"
-        :class="{
-          'pointer-events-none bg-ryb animation-blink text-light': playing,
-        }"
-      >
-        {{ $t("SHARE") }}
-      </div>
     </div>
     <div
       v-else-if="!playing"
@@ -92,13 +83,6 @@ export default {
     },
   },
   methods: {
-    share() {
-      this.$emit("share", {
-        file: this.file,
-        image: this.base64,
-        duration: this.duration,
-      });
-    },
     setParts() {
       this.parts = samplers
         .filter((item) => item.sampler.buffer.loaded)
@@ -130,7 +114,6 @@ export default {
       this.registerRecorder();
     },
     async registerRecorder() {
-      console.log(this.name);
       this.Tone = require("tone");
       this.dest = this.Tone.context.createMediaStreamDestination();
       this.recorder = new this.MediaRecorder(this.dest.stream, {
@@ -147,12 +130,6 @@ export default {
             type: "audio/wav",
           });
           this.file = await ffmpegTrim({ file: this.file, type: "start" });
-          // const { duration, base64 } = await drawWaveform({
-          //   canvas: this.$refs.canvas,
-          //   arrayBuffer: await this.file.arrayBuffer(),
-          // });
-          // this.duration = duration;
-          // this.base64 = base64;
           this.$store.commit("generator/loading", false);
         }
       };

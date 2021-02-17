@@ -33,9 +33,6 @@ export default {
   /*
    ** Nuxt.js modules
    */
-  router: {
-    middleware: 'authenticated'
-  },
   modules: [
     'nuxt-i18n',
     '@nuxtjs/pwa'

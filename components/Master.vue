@@ -40,51 +40,9 @@
         </Slider>
       </div>
       <div class="flex-grow mt-1">
-        <Sequencer :space="sampleSpace" :name="name" v-on:share="onShare" />
+        <Sequencer :space="sampleSpace" :name="name" />
       </div>
     </div>
-    <div
-      class="p-1 text-md border rounded-md text-quicksilver border-quicksilver"
-      v-else-if="shareData && !success && !errors"
-    >
-      <p class="border border-quicksilver p-1 rounded-md text-melon">
-        {{ $t("SHARE_TO_YT_PLAYLIST") }} {{ shareData.file.name }}??
-      </p>
-      <div class="flex-grow my-1">
-        <InputTag
-          :label="$t('TAGS')"
-          :items="tags"
-          :placeholder="$t('TAGS_CATEGORY')"
-          v-on:change="onTagsChange"
-        />
-      </div>
-      <div class="flex flex-wrap">
-        <div v-for="tag of shareData.tags" :key="tag" class="mb-1 mr-1">
-          <Snack :label="`#${tag}`" />
-        </div>
-      </div>
-      <div class="flex">
-        <div class="w-1/2 mr-1" :class="{ 'pointer-events-none': success }">
-          <Button
-            :label="$t('OK')"
-            v-on:click="confirmShare"
-            :loading="loading"
-          />
-        </div>
-        <div class="w-1/2 ml-1" :class="{ 'pointer-events-none': success }">
-          <Button
-            :label="$t('CANCEL')"
-            v-on:click="shareData = null"
-            :loading="loading"
-          />
-        </div>
-      </div>
-      <div
-        v-if="errors || success"
-        class="text-melon border border-quicksilver p-1 rounded-md"
-      >
-        {{ errors || success }}
-      </div>
     </div>
   </div>
 </template>
@@ -99,7 +57,6 @@ import InputTag from "~/components/InputTag";
 import generateName from "~/lib/generateName";
 import getSignedUrl from "~/lib/getSignedUrl";
 import { ffmpegCompressMP3 } from "~/lib/ffmpeg";
-import { setKit } from "~/lib/firebaseQueries";
 
 export default {
   components: {
@@ -111,10 +68,10 @@ export default {
     Button,
   },
   mounted() {
-    this.setKit = setKit;
   },
   methods: {
     onSampleSpaceChange({ target }) {
+      this.$store.commit('generator/setSampleSpace', +target.value);
       this.sampleSpace = +target.value;
     },
     onAutoTrimThresholdChange({ target }) {
@@ -130,94 +87,6 @@ export default {
         threshold: this.trimThreshold,
         active: this.autoTrim,
       });
-    },
-    onTagsChange(values) {
-      this.tags = values;
-    },
-    onShare({ file, duration, image }) {
-      const doc = {
-        file,
-        tags: this.tags,
-        name: file.name,
-        duration,
-        image,
-      };
-      this.shareData = doc;
-    },
-    async confirmShare() {
-      const audio = new Audio();
-      audio.src = URL.createObjectURL(this.shareData.file);
-      audio.onloadeddata = async () => {
-        console.log('la duration', audio.duration)
-        this.loading = true;
-        try {
-          const signedUrls = await getSignedUrl({
-            files: [
-              {
-                folder: "wavs",
-                name: `${this.$store.state.user.uid}/${this.shareData.file.name}`,
-                type: "audio/wav",
-              },
-              {
-                folder: "mp3s",
-                name: `${
-                  this.$store.state.user.uid
-                }/${this.shareData.file.name.replace("wav", "mp3")}`,
-                type: "audio/mp3",
-              },
-            ],
-          });
-          for await (const url of signedUrls) {
-            await this.uploadFile({
-              signedUrl: url,
-              compression: url.includes("mp3"),
-            });
-          }
-        } catch (err) {
-          console.log(err);
-        }
-      }
-    },
-    async uploadFile({ signedUrl, compression }) {
-      try {
-        const id = `${this.$store.state.user.uid}/${this.shareData.file.name}`;
-        let file = this.shareData.file;
-
-        if (compression) {
-          file = await ffmpegCompressMP3({
-            file: this.shareData.file,
-          });
-        }
-        const res = await fetch(signedUrl, {
-          method: "PUT",
-          body: new File([file], id, { type: file.type }), // rename with id
-          headers: {
-            "Content-Type": file.type,
-            "x-amz-acl": "public-read",
-          },
-        });
-        if (compression) {
-          await this.setKit({
-            kitData: {
-              name: this.shareData.file.name.split(".")[0],
-              tags: this.tags,
-              path: `${this.$store.state.user.uid}/${
-                this.shareData.file.name.split(".")[0]
-              }`,
-            },
-          });
-          this.success = this.$t("SHARE_SUCCESS_MESSAGE");
-          this.loading = false;
-          setTimeout(() => {
-            this.shareData = null;
-            this.success = false;
-          }, 4000);
-        }
-        return res;
-      } catch (err) {
-        this.errors = err;
-        return false;
-      }
     },
   },
   data() {

@@ -1,9 +1,7 @@
 <template>
   <div class="flex flex-col flex-grow p-1 overflow-hidden">
     <template v-if="!clipIndex">
-      <p class="flex-grow text-md text-quicksilver">
-        {{ $t("LOAD_SAMPLE") }}
-      </p>
+      <div class="flex-grow text-md text-quicksilver" v-html="$t('LOAD_SAMPLE')"></div>
     </template>
     <template v-else>
       <p class="text-md whitespace-no-wrap text-quicksilver">
@@ -20,17 +18,13 @@
           v-on:input="trimThreshold = +$event.target.value"
         >
           <div class="flex justify-evenly">
-            <Snack
-              :label="$t('UNDO')"
-              v-on:click="onUndo"
-              v-if="clipIndex.trimmed"
-            />
+            <Snack :label="$t('UNDO')" v-on:click="onUndo" v-if="clipIndex.trimmed" />
             <div class="w-1" />
             <Snack :label="$t('TRIM')" v-on:click="onTrim" />
           </div>
         </Slider>
       </div>
-      <Drawer v-on:load="setSeconds($event)" />
+      <Drawer />
     </template>
   </div>
 </template>
@@ -83,13 +77,6 @@ export default {
       this.$store.commit("generator/triggerUndo", {
         index: this.clipIndex.index,
         signature: new Date().getTime(),
-      });
-    },
-    setSeconds(seconds) {
-      this.duration = seconds;
-      this.$store.commit("generator/setDuration", {
-        duration: seconds,
-        index: this.clipIndex.index,
       });
     },
   },
