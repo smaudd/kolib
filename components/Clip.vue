@@ -31,7 +31,6 @@
 
 <script>
 import { mapState } from "vuex";
-import Waveform from "~/components/Waveform.vue";
 import Drawer from "~/components/Drawer.vue";
 
 import Snack from "~/components/Snack.vue";
@@ -39,7 +38,6 @@ import Slider from "~/components/Slider.vue";
 
 export default {
   components: {
-    Waveform,
     Snack,
     Slider,
     Drawer,
